@@ -286,7 +286,6 @@ textarea { resize:vertical; min-height:70px; }
         <textarea id="fNo" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
       </div>
       <button class="btn-save" onclick="saveBottle()">📥 Flasche einlagern</button>
-      <button class="btn-dup" id="dupBtn" onclick="duplicateMode()" style="display:none">⎘ Diese Flasche duplizieren</button>
     </div>
   </div>
 
@@ -757,6 +756,7 @@ function renderList() {
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">
         <div style="font-family:monospace;font-size:.6rem;color:var(--muted)">${b.code||''}</div>
         <div style="font-size:.58rem;color:var(--muted)">${b.dt||''}</div>
+        <button onclick="dupBottle(${b.id})" style="background:none;border:none;cursor:pointer;font-size:.9rem;color:#5c1a2e;padding:4px" title="Duplizieren">⎘</button>
         <button onclick="editBottle(${b.id})" style="background:none;border:none;cursor:pointer;font-size:.9rem;color:#c9a84c;padding:4px" title="Bearbeiten">✏️</button>
         <button class="bdel" onclick="delBottle(${b.id})">🗑</button>
       </div>
@@ -839,6 +839,47 @@ function duplicateMode() {
   // Focus barcode field
   focusScanInput();
   showToast('✓ Daten übernommen – bitte neuen Barcode scannen!', 'ok');
+}
+
+function dupBottle(id) {
+  const b = bottles.find(x => x.id === id);
+  if (!b) return;
+
+  // Switch to scan tab
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-scan').classList.add('active');
+  document.querySelector('.tab').classList.add('active');
+
+  // Set keller to same as source bottle
+  setKeller(b.keller);
+  setMode('in');
+
+  // Fill form with bottle data
+  document.getElementById('fWG').value  = b.wg || '';
+  document.getElementById('fTyp').value = b.tp || '';
+  document.getElementById('fSo').value  = b.so || '';
+  document.getElementById('fLa').value  = b.la || '';
+  document.getElementById('fJa').value  = b.ja || '';
+  document.getElementById('fGr').value  = b.gr || '0.75';
+  document.getElementById('fPr').value  = b.pr || '';
+  document.getElementById('fNo').value  = b.no || '';
+  curRating = b.ra || 0;
+  document.querySelectorAll('#formCard .star').forEach((s,i) => s.classList.toggle('on', i < curRating));
+
+  // Clear barcode — new one needed
+  curCode = '';
+  document.getElementById('bcShow').style.display = 'none';
+  document.getElementById('manIn').value = '';
+
+  // Show form
+  document.getElementById('formKellerLabel').textContent = b.keller;
+  document.getElementById('formCard').style.display = 'block';
+
+  // Focus barcode input
+  focusScanInput();
+  showToast('✓ Daten übernommen – bitte neuen Barcode scannen!', 'ok');
+  setTimeout(() => document.getElementById('formCard').scrollIntoView({behavior:'smooth', block:'nearest'}), 200);
 }
 
 let editRating = 0;
