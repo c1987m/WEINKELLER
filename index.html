@@ -168,6 +168,13 @@ textarea { resize:vertical; min-height:70px; }
 .btn-cancel  { flex:1; padding:.9rem; background:var(--cr); border:1px solid var(--cr2); border-radius:11px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
 .btn-confirm-red { flex:1; padding:.9rem; background:#b71c1c; color:white; border:none; border-radius:11px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
 
+/* EDIT MODAL */
+.edit-bg { display:none; position:fixed; inset:0; background:rgba(10,0,5,.72); z-index:600; align-items:flex-start; justify-content:center; padding:1rem; overflow-y:auto; }
+.edit-bg.open { display:flex; }
+.edit-box { background:white; border-radius:20px; padding:1.5rem; max-width:480px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.4); margin:auto; }
+.edit-title { font-family:"Cormorant Garamond",serif; font-size:1.5rem; color:var(--burg); margin-bottom:1.25rem; padding-bottom:.75rem; border-bottom:1px solid var(--cr2); font-weight:300; display:flex; justify-content:space-between; align-items:center; }
+.btn-edit-save { width:100%; padding:.9rem; background:linear-gradient(135deg,var(--gold),var(--gold2)); color:var(--deep); border:none; border-radius:11px; cursor:pointer; font-family:"Josefin Sans",sans-serif; font-size:.82rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; margin-top:.5rem; }
+
 /* INSTALL HINT */
 .install-hint { background:linear-gradient(135deg,var(--deep),var(--burg)); color:var(--gold2); border-radius:14px; padding:1rem 1.2rem; margin-bottom:1.25rem; font-size:.75rem; line-height:1.8; letter-spacing:.04em; }
 
@@ -307,6 +314,59 @@ textarea { resize:vertical; min-height:70px; }
   </div>
 
 </div><!-- /wrap -->
+
+<!-- EDIT MODAL -->
+<div class="edit-bg" id="editBg">
+  <div class="edit-box">
+    <div class="edit-title">
+      ✏️ Flasche bearbeiten
+      <button onclick="closeEdit()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)">✕</button>
+    </div>
+    <input type="hidden" id="editId"/>
+    <div class="fg"><label>Weingut *</label><input type="text" id="eWG" placeholder="z.B. Weingut Muster"/></div>
+    <div class="fg2">
+      <div class="fg"><label>Weintyp *</label>
+        <select id="eTyp">
+          <option value="">– wählen –</option>
+          <option>Rotwein</option><option>Weißwein</option><option>Rosé</option>
+          <option>Sekt</option><option>Champagner</option><option>Weißburgunder</option><option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="fg"><label>Sorte / Cuvée</label><input type="text" id="eSo" placeholder="z.B. Blaufränkisch"/></div>
+      <div class="fg"><label>Lage / Bezeichnung</label><input type="text" id="eLa" placeholder="z.B. Hochäcker"/></div>
+      <div class="fg"><label>Jahrgang</label><input type="number" id="eJa" placeholder="2021" inputmode="numeric"/></div>
+      <div class="fg"><label>Flaschengröße</label>
+        <select id="eGr">
+          <option value="0.375">0,375 L – Halbe</option>
+          <option value="0.75">0,75 L – Standard</option>
+          <option value="1.5">1,5 L – Magnum</option>
+          <option value="3.0">3,0 L – Jeroboam</option>
+          <option value="6.0">6,0 L – Methusalem</option>
+          <option value="9.0">9,0 L – Salmanazar</option>
+          <option value="12.0">12,0 L – Balthazar</option>
+        </select>
+      </div>
+      <div class="fg"><label>Preis in Euro</label><input type="number" id="ePr" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
+      <div class="fg"><label>Keller</label>
+        <select id="eKeller">
+          <option value="Zöbing">Keller Zöbing</option>
+          <option value="Stein">Keller Stein</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Bewertung</label>
+      <div class="stars" id="eStars">
+        <span class="star" onclick="rateEdit(1)">★</span><span class="star" onclick="rateEdit(2)">★</span>
+        <span class="star" onclick="rateEdit(3)">★</span><span class="star" onclick="rateEdit(4)">★</span>
+        <span class="star" onclick="rateEdit(5)">★</span>
+      </div>
+    </div>
+    <div class="fg"><label>Sonstige Anmerkungen</label>
+      <textarea id="eNo" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
+    </div>
+    <button class="btn-edit-save" onclick="saveEdit()">💾 Änderungen speichern</button>
+  </div>
+</div>
 
 <!-- CAMERA MODAL -->
 <div class="cam-modal" id="camModal">
@@ -568,7 +628,6 @@ function resetCode() {
   document.getElementById('bcShow').style.display='none';
   document.getElementById('manIn').value='';
   document.getElementById('formCard').style.display='none';
-  document.getElementById('dupBtn').style.display='none';
 }
 
 // ═══════════════════════════════════════════════════
@@ -698,6 +757,7 @@ function renderList() {
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">
         <div style="font-family:monospace;font-size:.6rem;color:var(--muted)">${b.code||''}</div>
         <div style="font-size:.58rem;color:var(--muted)">${b.dt||''}</div>
+        <button onclick="editBottle(${b.id})" style="background:none;border:none;cursor:pointer;font-size:.9rem;color:#c9a84c;padding:4px" title="Bearbeiten">✏️</button>
         <button class="bdel" onclick="delBottle(${b.id})">🗑</button>
       </div>
     </div>`;
@@ -779,6 +839,64 @@ function duplicateMode() {
   // Focus barcode field
   focusScanInput();
   showToast('✓ Daten übernommen – bitte neuen Barcode scannen!', 'ok');
+}
+
+let editRating = 0;
+
+function editBottle(id) {
+  const b = bottles.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('editId').value   = b.id;
+  document.getElementById('eWG').value      = b.wg || '';
+  document.getElementById('eTyp').value     = b.tp || '';
+  document.getElementById('eSo').value      = b.so || '';
+  document.getElementById('eLa').value      = b.la || '';
+  document.getElementById('eJa').value      = b.ja || '';
+  document.getElementById('eGr').value      = b.gr || '0.75';
+  document.getElementById('ePr').value      = b.pr || '';
+  document.getElementById('eKeller').value  = b.keller || 'Zöbing';
+  document.getElementById('eNo').value      = b.no || '';
+  editRating = b.ra || 0;
+  document.querySelectorAll('#eStars .star').forEach((s,i) => s.classList.toggle('on', i < editRating));
+  document.getElementById('editBg').classList.add('open');
+}
+
+function rateEdit(v) {
+  editRating = v;
+  document.querySelectorAll('#eStars .star').forEach((s,i) => s.classList.toggle('on', i < v));
+}
+
+function closeEdit() {
+  document.getElementById('editBg').classList.remove('open');
+}
+
+async function saveEdit() {
+  const id = parseInt(document.getElementById('editId').value);
+  const wg = document.getElementById('eWG').value.trim();
+  const tp = document.getElementById('eTyp').value;
+  if (!wg) { showToast('Bitte Weingut eingeben!','err'); return; }
+  if (!tp) { showToast('Bitte Weintyp wählen!','err'); return; }
+
+  setSyncStatus('syncing','Speichere …');
+  const { error } = await sb.from('bottles').update({
+    wg, tp,
+    so: document.getElementById('eSo').value.trim(),
+    la: document.getElementById('eLa').value.trim(),
+    ja: document.getElementById('eJa').value,
+    gr: document.getElementById('eGr').value || '0.75',
+    pr: parseFloat(document.getElementById('ePr').value) || 0,
+    keller: document.getElementById('eKeller').value,
+    ra: editRating,
+    no: document.getElementById('eNo').value.trim()
+  }).eq('id', id);
+
+  if (error) {
+    setSyncStatus('offline','Fehler');
+    showToast('⚠️ Fehler: ' + error.message, 'err');
+    return;
+  }
+  closeEdit();
+  showToast('✓ Änderungen gespeichert!', 'ok');
 }
 
 function focusScanInput() {
