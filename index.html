@@ -168,6 +168,14 @@ textarea { resize:vertical; min-height:70px; }
 .btn-cancel  { flex:1; padding:.9rem; background:var(--cr); border:1px solid var(--cr2); border-radius:11px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
 .btn-confirm-red { flex:1; padding:.9rem; background:#b71c1c; color:white; border:none; border-radius:11px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
 
+/* AUTOCOMPLETE */
+.ac-wrap { position:relative; }
+.ac-list { display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1px solid var(--burg); border-top:none; border-radius:0 0 9px 9px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 20px rgba(58,15,30,.15); }
+.ac-item { padding:.6rem .85rem; font-family:'Josefin Sans',sans-serif; font-size:.85rem; cursor:pointer; color:var(--text); border-bottom:1px solid var(--cr2); }
+.ac-item:last-child { border-bottom:none; }
+.ac-item:hover { background:var(--cr); color:var(--burg); }
+.ac-item strong { color:var(--burg); }
+
 /* EDIT MODAL */
 .edit-bg { display:none; position:fixed; inset:0; background:rgba(10,0,5,.72); z-index:600; align-items:flex-start; justify-content:center; padding:1rem; overflow-y:auto; }
 .edit-bg.open { display:flex; }
@@ -250,7 +258,12 @@ textarea { resize:vertical; min-height:70px; }
     <!-- EINLAGERN FORM -->
     <div class="card" id="formCard" style="display:none">
       <div class="card-title">Wein erfassen – Keller <span id="formKellerLabel"></span></div>
-      <div class="fg"><label>Weingut *</label><input type="text" id="fWG" placeholder="z.B. Weingut Muster"/></div>
+      <div class="fg ac-wrap">
+          <label>Weingut *</label>
+          <input type="text" id="fWG" placeholder="z.B. Weingut Muster" autocomplete="off"
+            oninput="showAC('fWG','wg',this.value)" onblur="hideAC('fWG')" onfocus="showAC('fWG','wg',this.value)"/>
+          <div class="ac-list" id="ac-fWG"></div>
+        </div>
       <div class="fg2">
         <div class="fg"><label>Weintyp *</label>
           <select id="fTyp">
@@ -259,8 +272,18 @@ textarea { resize:vertical; min-height:70px; }
             <option>Sekt</option><option>Champagner</option><option>Weißburgunder</option><option>Sonstiges</option>
           </select>
         </div>
-        <div class="fg"><label>Sorte / Cuvée</label><input type="text" id="fSo" placeholder="z.B. Blaufränkisch"/></div>
-        <div class="fg"><label>Lage / Bezeichnung</label><input type="text" id="fLa" placeholder="z.B. Hochäcker"/></div>
+        <div class="fg ac-wrap">
+          <label>Sorte / Cuvée</label>
+          <input type="text" id="fSo" placeholder="z.B. Blaufränkisch" autocomplete="off"
+            oninput="showAC('fSo','so',this.value)" onblur="hideAC('fSo')" onfocus="showAC('fSo','so',this.value)"/>
+          <div class="ac-list" id="ac-fSo"></div>
+        </div>
+        <div class="fg ac-wrap">
+          <label>Lage / Bezeichnung</label>
+          <input type="text" id="fLa" placeholder="z.B. Hochäcker" autocomplete="off"
+            oninput="showAC('fLa','la',this.value)" onblur="hideAC('fLa')" onfocus="showAC('fLa','la',this.value)"/>
+          <div class="ac-list" id="ac-fLa"></div>
+        </div>
         <div class="fg"><label>Jahrgang</label><input type="number" id="fJa" placeholder="2021" inputmode="numeric"/></div>
         <div class="fg"><label>Flaschengröße</label>
           <select id="fGr">
@@ -839,6 +862,43 @@ function showToast(msg,type='ok'){
 // ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+// AUTOCOMPLETE
+// ═══════════════════════════════════════════════════
+function getUnique(field) {
+  return [...new Set(bottles.map(b => (b[field]||'').trim()).filter(Boolean))].sort();
+}
+
+function showAC(inputId, field, val) {
+  const list = document.getElementById('ac-'+inputId);
+  const q = (val||'').trim().toLowerCase();
+  const all = getUnique(field);
+  const matches = q ? all.filter(s => s.toLowerCase().includes(q) && s.toLowerCase() !== q) : all;
+  if (!matches.length) { list.style.display='none'; return; }
+  list.innerHTML = matches.slice(0,8).map(s => {
+    // Highlight matching part
+    const idx = s.toLowerCase().indexOf(q);
+    let label = s;
+    if (q && idx >= 0) {
+      label = s.slice(0,idx) + '<strong>' + s.slice(idx,idx+q.length) + '</strong>' + s.slice(idx+q.length);
+    }
+    return `<div class="ac-item" onmousedown="pickAC('${inputId}','${s.replace(/'/g,"\'")}')">${label}</div>`;
+  }).join('');
+  list.style.display = 'block';
+}
+
+function pickAC(inputId, val) {
+  document.getElementById(inputId).value = val;
+  document.getElementById('ac-'+inputId).style.display = 'none';
+}
+
+function hideAC(inputId) {
+  setTimeout(() => {
+    const list = document.getElementById('ac-'+inputId);
+    if (list) list.style.display = 'none';
+  }, 150);
+}
+
 function duplicateMode() {
   if (!lastSaved) return;
   // Fill form with last saved data
