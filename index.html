@@ -811,7 +811,7 @@ function renderOv() {
   el.innerHTML=`
     <div class="ovc"><div class="ovh">Flaschen nach Keller</div>${kellerBars}</div>
     <div class="ovc"><div class="ovh">Flaschen nach Weintyp</div>${bars(byT,k=>CL[k]||'#888','')}</div>
-    ${Object.keys(byJ).length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+bars(Object.fromEntries(Object.entries(byJ).sort((a,b)=>+b[0]-+a[0])),()=>'#c9a84c','')+'</div>':''}
+    ${Object.keys(byJ).length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+bars(Object.fromEntries(Object.entries(byJ).sort((a,b)=>parseInt(b[0])-parseInt(a[0]))),()=>'#c9a84c','')+'</div>':''}
     ${Object.keys(bySo).length?'<div class="ovc"><div class="ovh">Top Sorten</div>'+bars(Object.fromEntries(Object.entries(bySo).sort((a,b)=>b[1]-a[1]).slice(0,10)),()=>'var(--burg)','')+'</div>':''}
     ${Object.keys(byV).length?'<div class="ovc"><div class="ovh">Wert nach Weintyp</div>'+bars(byV,k=>CL[k]||'#888','€')+'</div>':''}`;
 }
