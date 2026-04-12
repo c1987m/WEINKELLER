@@ -303,6 +303,9 @@ textarea { resize:vertical; min-height:70px; }
         <option>Rotwein</option><option>Weißwein</option><option>Rosé</option>
         <option>Sekt</option><option>Champagner</option><option>Weißburgunder</option><option>Sonstiges</option>
       </select>
+      <select id="fsFilter" onchange="renderList()">
+        <option value="">Alle Sorten</option>
+      </select>
     </div>
     <div id="bGrid"><div class="loading"><div class="spinner"></div>Lade Bestand …</div></div>
   </div>
@@ -730,9 +733,18 @@ function renderList() {
   const q  = (document.getElementById('sq').value||'').toLowerCase();
   const fk = document.getElementById('fkFilter').value;
   const ft = document.getElementById('ftFilter').value;
+  const fs = document.getElementById('fsFilter').value;
   const el = document.getElementById('bGrid');
+
+  // Populate Sorte dropdown dynamically from current bottles
+  const sortenSet = [...new Set(bottles.map(b=>b.so).filter(Boolean))].sort();
+  const fsEl = document.getElementById('fsFilter');
+  const curFs = fsEl.value;
+  fsEl.innerHTML = '<option value="">Alle Sorten</option>' +
+    sortenSet.map(s=>`<option value="${s}" ${s===curFs?'selected':''}>${s}</option>`).join('');
+
   let fl   = bottles.filter(b=>
-    (!fk||b.keller===fk)&&(!ft||b.tp===ft)&&
+    (!fk||b.keller===fk)&&(!ft||b.tp===ft)&&(!fs||b.so===fs)&&
     (!q||[b.wg,b.so,b.la,b.tp,b.ja+''].some(v=>(v||'').toLowerCase().includes(q)))
   ).sort((a,b)=>(a.keller+a.tp+a.wg).localeCompare(b.keller+b.tp+b.wg));
 
@@ -773,12 +785,13 @@ function renderOv() {
     el.innerHTML='<div class="ovc"><div class="empty"><div class="ei">📊</div><p>Noch keine Flaschen eingelagert</p></div></div>';
     return;
   }
-  const byK={Zöbing:0,Stein:0},byT={},byJ={},byV={};
+  const byK={Zöbing:0,Stein:0},byT={},byJ={},byV={},bySo={};
   bottles.forEach(b=>{
     byK[b.keller]=(byK[b.keller]||0)+1;
     byT[b.tp]=(byT[b.tp]||0)+1;
     if(b.ja) byJ[b.ja]=(byJ[b.ja]||0)+1;
     if(b.pr) byV[b.tp]=(byV[b.tp]||0)+parseFloat(b.pr);
+    if(b.so) bySo[b.so]=(bySo[b.so]||0)+1;
   });
   function bars(obj,cfn,unit){
     const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
@@ -799,6 +812,7 @@ function renderOv() {
     <div class="ovc"><div class="ovh">Flaschen nach Keller</div>${kellerBars}</div>
     <div class="ovc"><div class="ovh">Flaschen nach Weintyp</div>${bars(byT,k=>CL[k]||'#888','')}</div>
     ${Object.keys(byJ).length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+bars(Object.fromEntries(Object.entries(byJ).sort((a,b)=>+b[0]-+a[0])),()=>'#c9a84c','')+'</div>':''}
+    ${Object.keys(bySo).length?'<div class="ovc"><div class="ovh">Top Sorten</div>'+bars(Object.fromEntries(Object.entries(bySo).sort((a,b)=>b[1]-a[1]).slice(0,10)),()=>'var(--burg)','')+'</div>':''}
     ${Object.keys(byV).length?'<div class="ovc"><div class="ovh">Wert nach Weintyp</div>'+bars(byV,k=>CL[k]||'#888','€')+'</div>':''}`;
 }
 
