@@ -789,7 +789,7 @@ function renderOv() {
   bottles.forEach(b=>{
     byK[b.keller]=(byK[b.keller]||0)+1;
     byT[b.tp]=(byT[b.tp]||0)+1;
-    if(b.ja) byJ[b.ja]=(byJ[b.ja]||0)+1;
+    if(b.ja) { const j=String(b.ja).trim(); if(j) byJ[j]=(byJ[j]||0)+1; }
     if(b.pr) byV[b.tp]=(byV[b.tp]||0)+parseFloat(b.pr);
     if(b.so) bySo[b.so]=(bySo[b.so]||0)+1;
   });
@@ -811,7 +811,7 @@ function renderOv() {
   el.innerHTML=`
     <div class="ovc"><div class="ovh">Flaschen nach Keller</div>${kellerBars}</div>
     <div class="ovc"><div class="ovh">Flaschen nach Weintyp</div>${bars(byT,k=>CL[k]||'#888','')}</div>
-    ${Object.keys(byJ).length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+bars(Object.fromEntries(Object.entries(byJ).sort((a,b)=>parseInt(b[0])-parseInt(a[0]))),()=>'#c9a84c','')+'</div>':''}
+    ${Object.keys(byJ).length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+bars(Object.fromEntries(Object.entries(byJ).sort((a,b)=>Number(b[0])-Number(a[0]))),()=>'#c9a84c','')+'</div>':''}
     ${Object.keys(bySo).length?'<div class="ovc"><div class="ovh">Top Sorten</div>'+bars(Object.fromEntries(Object.entries(bySo).sort((a,b)=>b[1]-a[1]).slice(0,10)),()=>'var(--burg)','')+'</div>':''}
     ${Object.keys(byV).length?'<div class="ovc"><div class="ovh">Wert nach Weintyp</div>'+bars(byV,k=>CL[k]||'#888','€')+'</div>':''}`;
 }
