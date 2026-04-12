@@ -802,6 +802,15 @@ function renderOv() {
       <div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div>
     </div>`).join('');
   }
+  // barsOrdered: respects the order of entries as passed in (no re-sorting)
+  function barsOrdered(entries,cfn,unit){
+    const mx=Math.max(...entries.map(e=>e[1]))||1;
+    return entries.map(([k,v])=>`<div class="brow">
+      <div class="blbl">${k}</div>
+      <div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div>
+      <div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div>
+    </div>`).join('');
+  }
   const mx2=Math.max(...Object.values(byK))||1;
   const kellerBars=Object.entries(byK).map(([k,v])=>`<div class="brow">
     <div class="blbl">🏰 ${k}</div>
@@ -811,7 +820,7 @@ function renderOv() {
   el.innerHTML=`
     <div class="ovc"><div class="ovh">Flaschen nach Keller</div>${kellerBars}</div>
     <div class="ovc"><div class="ovh">Flaschen nach Weintyp</div>${bars(byT,k=>CL[k]||'#888','')}</div>
-    ${Object.keys(byJ).length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+bars(Object.fromEntries(Object.entries(byJ).sort((a,b)=>Number(b[0])-Number(a[0]))),()=>'#c9a84c','')+'</div>':''}
+    ${Object.keys(byJ).length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+barsOrdered(Object.entries(byJ).sort((a,b)=>Number(b[0])-Number(a[0])),()=>'#c9a84c','')+'</div>':''}
     ${Object.keys(bySo).length?'<div class="ovc"><div class="ovh">Top Sorten</div>'+bars(Object.fromEntries(Object.entries(bySo).sort((a,b)=>b[1]-a[1]).slice(0,10)),()=>'var(--burg)','')+'</div>':''}
     ${Object.keys(byV).length?'<div class="ovc"><div class="ovh">Wert nach Weintyp</div>'+bars(byV,k=>CL[k]||'#888','€')+'</div>':''}`;
 }
