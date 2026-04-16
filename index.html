@@ -262,7 +262,15 @@ textarea { resize:vertical; min-height:70px; }
           onkeydown="if(event.key==='Enter'){useManual();event.preventDefault();}"/>
         <button onclick="useManual()" style="padding:.65rem 1rem;background:var(--burg);color:var(--gold2);border:none;border-radius:9px;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:.75rem;white-space:nowrap">OK</button>
       </div>
-      <p style="font-size:.62rem;color:var(--muted);margin-top:.4rem">💡 Bluetooth-Scanner koppeln &amp; scannen — Code wird automatisch übernommen</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.5rem">
+        <p style="font-size:.62rem;color:var(--muted)">💡 Bluetooth-Scanner: Code scannen → automatisch übernommen</p>
+        <button onclick="document.getElementById('manIn').focus();document.getElementById('manIn').click();"
+          style="background:var(--cr);border:1px solid var(--cr2);border-radius:9px;padding:.4rem .8rem;
+          font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+          color:var(--burg);cursor:pointer;white-space:nowrap;flex-shrink:0;margin-left:.75rem">
+          ⌨️ Tastatur
+        </button>
+      </div>
     </div>
 
     <!-- EINLAGERN FORM -->
@@ -307,6 +315,7 @@ textarea { resize:vertical; min-height:70px; }
           </select>
         </div>
         <div class="fg"><label>Preis in Euro</label><input type="number" id="fPr" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
+        <div class="fg"><label>Alkohol %Vol</label><input type="number" id="fAlk" placeholder="13.0" step="0.1" min="0" max="25" inputmode="decimal"/></div>
       </div>
       <div class="fg"><label>Bewertung</label>
         <div class="stars">
@@ -382,6 +391,7 @@ textarea { resize:vertical; min-height:70px; }
         </select>
       </div>
       <div class="fg"><label>Preis in Euro</label><input type="number" id="ePr" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
+      <div class="fg"><label>Alkohol %Vol</label><input type="number" id="eAlk" placeholder="13.0" step="0.1" min="0" max="25" inputmode="decimal"/></div>
       <div class="fg"><label>Keller</label>
         <select id="eKeller">
           <option value="Zöbing">Keller Zöbing</option>
@@ -718,6 +728,7 @@ async function saveBottle() {
     pr: parseFloat(document.getElementById('fPr').value)||0,
     ra: curRating,
     no: document.getElementById('fNo').value.trim(),
+    alk: parseFloat(document.getElementById('fAlk').value)||null,
     dt: new Date().toLocaleDateString('de-AT')
   }]);
 
@@ -728,7 +739,7 @@ async function saveBottle() {
   }
 
   // Reset form
-  ['fWG','fSo','fLa','fJa','fPr','fNo'].forEach(id=>document.getElementById(id).value='');
+  ['fWG','fSo','fLa','fJa','fPr','fAlk','fNo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fTyp').value='';
   document.getElementById('fGr').value='0.75';
   curRating=0; document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));
@@ -745,7 +756,7 @@ async function saveBottle() {
 function showConfirm(b) {
   removeId = b.id;
   document.getElementById('cName').textContent = b.wg+(b.so?' · '+b.so:'')+(b.la?' '+b.la:'');
-  document.getElementById('cMeta').textContent = [b.tp, b.ja, b.gr+'L', b.pr?'€'+b.pr:'', '🏰 '+b.keller].filter(Boolean).join(' · ');
+  document.getElementById('cMeta').textContent = [b.tp, b.ja, b.gr+'L', b.pr?'€'+b.pr:'', b.alk?b.alk+'%vol':'', '🏰 '+b.keller].filter(Boolean).join(' · ');
   document.getElementById('confirmBg').classList.add('open');
 }
 function closeConfirm() { document.getElementById('confirmBg').classList.remove('open'); removeId=null; resetCode(); }
@@ -798,7 +809,7 @@ function renderList() {
   }
   el.innerHTML = fl.map(b=>{
     const meta  = [b.so,b.la,b.ja].filter(Boolean).join(' · ');
-    const info  = [b.tp,b.gr+'L',b.pr?'€'+b.pr:''].filter(Boolean).join(' · ');
+    const info  = [b.tp,b.gr+'L',b.pr?'€'+b.pr:'',b.alk?b.alk+'%vol':''].filter(Boolean).join(' · ');
     const stars = b.ra?'<div style="font-size:.7rem;color:#c9a84c">'+'★'.repeat(b.ra)+'<span style="color:#e0d4c4">'+'★'.repeat(5-b.ra)+'</span></div>':'';
     return `<div class="bcard">
       <div class="bdot" style="background:${BG[b.tp]||'#f3e5f5'}">${EM[b.tp]||'🍷'}</div>
@@ -967,6 +978,7 @@ function dupBottle(id) {
   document.getElementById('fJa').value  = b.ja || '';
   document.getElementById('fGr').value  = b.gr || '0.75';
   document.getElementById('fPr').value  = b.pr || '';
+  document.getElementById('fAlk').value  = b.alk || '';
   document.getElementById('fNo').value  = b.no || '';
   curRating = b.ra || 0;
   document.querySelectorAll('#formCard .star').forEach((s,i) => s.classList.toggle('on', i < curRating));
@@ -1000,6 +1012,7 @@ function editBottle(id) {
   document.getElementById('eGr').value      = b.gr || '0.75';
   document.getElementById('ePr').value      = b.pr || '';
   document.getElementById('eKeller').value  = b.keller || 'Zöbing';
+  document.getElementById('eAlk').value      = b.alk || '';
   document.getElementById('eNo').value      = b.no || '';
   editRating = b.ra || 0;
   document.querySelectorAll('#eStars .star').forEach((s,i) => s.classList.toggle('on', i < editRating));
@@ -1032,7 +1045,8 @@ async function saveEdit() {
     pr: parseFloat(document.getElementById('ePr').value) || 0,
     keller: document.getElementById('eKeller').value,
     ra: editRating,
-    no: document.getElementById('eNo').value.trim()
+    no: document.getElementById('eNo').value.trim(),
+    alk: parseFloat(document.getElementById('eAlk').value)||null
   }).eq('id', id);
 
   if (error) {
