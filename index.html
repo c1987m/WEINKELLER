@@ -168,6 +168,25 @@ textarea { resize:vertical; min-height:70px; }
 .btn-cancel  { flex:1; padding:.9rem; background:var(--cr); border:1px solid var(--cr2); border-radius:11px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
 .btn-confirm-red { flex:1; padding:.9rem; background:#b71c1c; color:white; border:none; border-radius:11px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
 
+/* KEYBOARD INPUT MODAL */
+.kb-bg { display:none; position:fixed; inset:0; background:rgba(10,0,5,.6); z-index:800; align-items:flex-end; justify-content:center; }
+.kb-bg.open { display:flex; }
+.kb-box { background:white; width:100%; max-width:600px; border-radius:20px 20px 0 0; padding:1.2rem 1rem 2rem; box-shadow:0 -8px 40px rgba(0,0,0,.3); }
+.kb-label { font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem; display:block; }
+.kb-input-row { display:flex; gap:.5rem; margin-bottom:.9rem; }
+.kb-input { flex:1; padding:.75rem 1rem; border:2px solid var(--burg); border-radius:11px; font-family:'Josefin Sans',sans-serif; font-size:1rem; color:var(--text); background:white; outline:none; }
+.kb-ok { padding:.75rem 1.2rem; background:var(--burg); color:var(--gold2); border:none; border-radius:11px; font-family:'Josefin Sans',sans-serif; font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
+.kb-cancel { padding:.75rem 1rem; background:var(--cr); color:var(--muted); border:1px solid var(--cr2); border-radius:11px; font-family:'Josefin Sans',sans-serif; font-size:.8rem; cursor:pointer; }
+.kb-keys { display:grid; grid-template-columns:repeat(10,1fr); gap:.3rem; margin-bottom:.4rem; }
+.kb-keys2 { display:grid; grid-template-columns:repeat(9,1fr); gap:.3rem; margin-bottom:.4rem; }
+.kb-keys3 { display:grid; grid-template-columns:1fr repeat(7,1fr) 1fr; gap:.3rem; margin-bottom:.4rem; }
+.kb-keys4 { display:grid; grid-template-columns:1fr 3fr 1fr; gap:.3rem; }
+.kb-key { padding:.55rem .2rem; background:var(--cr); border:1px solid var(--cr2); border-radius:7px; font-family:'Josefin Sans',sans-serif; font-size:.82rem; cursor:pointer; text-align:center; color:var(--text); user-select:none; -webkit-user-select:none; }
+.kb-key:active { background:var(--cr2); }
+.kb-key.special { background:#e8e0d8; font-size:.65rem; letter-spacing:.05em; }
+.kb-key.space { background:white; border-color:var(--cr2); }
+.kb-key.num { background:#f0e8dc; }
+
 /* AUTOCOMPLETE */
 .ac-wrap { position:relative; }
 .ac-list { display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1px solid var(--burg); border-top:none; border-radius:0 0 9px 9px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 20px rgba(58,15,30,.15); }
@@ -278,7 +297,7 @@ textarea { resize:vertical; min-height:70px; }
       <div class="card-title">Wein erfassen – Keller <span id="formKellerLabel"></span></div>
       <div class="fg ac-wrap">
           <label>Weingut *</label>
-          <input type="text" id="fWG" placeholder="z.B. Weingut Muster" autocomplete="off"
+          <input type="text" id="fWG" onfocus="this.blur();openKb(this,'Weingut')" placeholder="z.B. Weingut Muster" autocomplete="off"
             oninput="showAC('fWG','wg',this.value)" onblur="hideAC('fWG')" onfocus="showAC('fWG','wg',this.value)"/>
           <div class="ac-list" id="ac-fWG"></div>
         </div>
@@ -292,17 +311,17 @@ textarea { resize:vertical; min-height:70px; }
         </div>
         <div class="fg ac-wrap">
           <label>Sorte / Cuvée</label>
-          <input type="text" id="fSo" placeholder="z.B. Blaufränkisch" autocomplete="off"
+          <input type="text" id="fSo" onfocus="this.blur();openKb(this,'Sorte / Cuvée')" placeholder="z.B. Blaufränkisch" autocomplete="off"
             oninput="showAC('fSo','so',this.value)" onblur="hideAC('fSo')" onfocus="showAC('fSo','so',this.value)"/>
           <div class="ac-list" id="ac-fSo"></div>
         </div>
         <div class="fg ac-wrap">
           <label>Lage / Bezeichnung</label>
-          <input type="text" id="fLa" placeholder="z.B. Hochäcker" autocomplete="off"
+          <input type="text" id="fLa" onfocus="this.blur();openKb(this,'Lage / Bezeichnung')" placeholder="z.B. Hochäcker" autocomplete="off"
             oninput="showAC('fLa','la',this.value)" onblur="hideAC('fLa')" onfocus="showAC('fLa','la',this.value)"/>
           <div class="ac-list" id="ac-fLa"></div>
         </div>
-        <div class="fg"><label>Jahrgang</label><input type="number" id="fJa" placeholder="2021" inputmode="numeric"/></div>
+        <div class="fg"><label>Jahrgang</label><input type="number" id="fJa" onfocus="this.blur();openKb(this,'Jahrgang')" placeholder="2021" inputmode="numeric"/></div>
         <div class="fg"><label>Flaschengröße</label>
           <select id="fGr">
             <option value="0.375">0,375 L – Halbe</option>
@@ -314,8 +333,8 @@ textarea { resize:vertical; min-height:70px; }
             <option value="12.0">12,0 L – Balthazar</option>
           </select>
         </div>
-        <div class="fg"><label>Preis in Euro</label><input type="number" id="fPr" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
-        <div class="fg"><label>Alkohol %Vol</label><input type="number" id="fAlk" placeholder="13.0" step="0.1" min="0" max="25" inputmode="decimal"/></div>
+        <div class="fg"><label>Preis in Euro</label><input type="number" id="fPr" onfocus="this.blur();openKb(this,'Preis in Euro')" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
+        <div class="fg"><label>Alkohol %Vol</label><input type="number" id="fAlk" onfocus="this.blur();openKb(this,'Alkohol %Vol')" placeholder="13.0" step="0.1" min="0" max="25" inputmode="decimal"/></div>
       </div>
       <div class="fg"><label>Bewertung</label>
         <div class="stars">
@@ -325,7 +344,7 @@ textarea { resize:vertical; min-height:70px; }
         </div>
       </div>
       <div class="fg"><label>Sonstige Anmerkungen</label>
-        <textarea id="fNo" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
+        <textarea id="fNo" onfocus="this.blur();openKb(this,'Anmerkungen')" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
       </div>
       <button class="btn-save" onclick="saveBottle()">📥 Flasche einlagern</button>
     </div>
@@ -367,7 +386,7 @@ textarea { resize:vertical; min-height:70px; }
       <button onclick="closeEdit()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)">✕</button>
     </div>
     <input type="hidden" id="editId"/>
-    <div class="fg"><label>Weingut *</label><input type="text" id="eWG" placeholder="z.B. Weingut Muster"/></div>
+    <div class="fg"><label>Weingut *</label><input type="text" id="eWG" onfocus="this.blur();openKb(this,'Weingut')" placeholder="z.B. Weingut Muster"/></div>
     <div class="fg2">
       <div class="fg"><label>Weintyp *</label>
         <select id="eTyp">
@@ -376,9 +395,9 @@ textarea { resize:vertical; min-height:70px; }
           <option>Sekt</option><option>Champagner</option><option>Weißburgunder</option><option>Sonstiges</option>
         </select>
       </div>
-      <div class="fg"><label>Sorte / Cuvée</label><input type="text" id="eSo" placeholder="z.B. Blaufränkisch"/></div>
-      <div class="fg"><label>Lage / Bezeichnung</label><input type="text" id="eLa" placeholder="z.B. Hochäcker"/></div>
-      <div class="fg"><label>Jahrgang</label><input type="number" id="eJa" placeholder="2021" inputmode="numeric"/></div>
+      <div class="fg"><label>Sorte / Cuvée</label><input type="text" id="eSo" onfocus="this.blur();openKb(this,'Sorte / Cuvée')" placeholder="z.B. Blaufränkisch"/></div>
+      <div class="fg"><label>Lage / Bezeichnung</label><input type="text" id="eLa" onfocus="this.blur();openKb(this,'Lage / Bezeichnung')" placeholder="z.B. Hochäcker"/></div>
+      <div class="fg"><label>Jahrgang</label><input type="number" id="eJa" onfocus="this.blur();openKb(this,'Jahrgang')" placeholder="2021" inputmode="numeric"/></div>
       <div class="fg"><label>Flaschengröße</label>
         <select id="eGr">
           <option value="0.375">0,375 L – Halbe</option>
@@ -390,8 +409,8 @@ textarea { resize:vertical; min-height:70px; }
           <option value="12.0">12,0 L – Balthazar</option>
         </select>
       </div>
-      <div class="fg"><label>Preis in Euro</label><input type="number" id="ePr" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
-      <div class="fg"><label>Alkohol %Vol</label><input type="number" id="eAlk" placeholder="13.0" step="0.1" min="0" max="25" inputmode="decimal"/></div>
+      <div class="fg"><label>Preis in Euro</label><input type="number" id="ePr" onfocus="this.blur();openKb(this,'Preis in Euro')" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
+      <div class="fg"><label>Alkohol %Vol</label><input type="number" id="eAlk" onfocus="this.blur();openKb(this,'Alkohol %Vol')" placeholder="13.0" step="0.1" min="0" max="25" inputmode="decimal"/></div>
       <div class="fg"><label>Keller</label>
         <select id="eKeller">
           <option value="Zöbing">Keller Zöbing</option>
@@ -407,7 +426,7 @@ textarea { resize:vertical; min-height:70px; }
       </div>
     </div>
     <div class="fg"><label>Sonstige Anmerkungen</label>
-      <textarea id="eNo" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
+      <textarea id="eNo" onfocus="this.blur();openKb(this,'Anmerkungen')" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
     </div>
     <button class="btn-edit-save" onclick="saveEdit()">💾 Änderungen speichern</button>
   </div>
@@ -455,6 +474,56 @@ textarea { resize:vertical; min-height:70px; }
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- KEYBOARD MODAL -->
+<div class="kb-bg" id="kbBg">
+  <div class="kb-box">
+    <span class="kb-label" id="kbLabel">Eingabe</span>
+    <div class="kb-input-row">
+      <input class="kb-input" id="kbInput" type="text" autocomplete="off" autocorrect="off" spellcheck="false"/>
+      <button class="kb-cancel" onclick="closeKb()">✕</button>
+      <button class="kb-ok" onclick="confirmKb()">OK ✓</button>
+    </div>
+    <!-- ROW 1: numbers -->
+    <div class="kb-keys">
+      <div class="kb-key num" onclick="kbType('1')">1</div><div class="kb-key num" onclick="kbType('2')">2</div>
+      <div class="kb-key num" onclick="kbType('3')">3</div><div class="kb-key num" onclick="kbType('4')">4</div>
+      <div class="kb-key num" onclick="kbType('5')">5</div><div class="kb-key num" onclick="kbType('6')">6</div>
+      <div class="kb-key num" onclick="kbType('7')">7</div><div class="kb-key num" onclick="kbType('8')">8</div>
+      <div class="kb-key num" onclick="kbType('9')">9</div><div class="kb-key num" onclick="kbType('0')">0</div>
+    </div>
+    <!-- ROW 2: QWERTZUIOP -->
+    <div class="kb-keys">
+      <div class="kb-key" onclick="kbType('q')">q</div><div class="kb-key" onclick="kbType('w')">w</div>
+      <div class="kb-key" onclick="kbType('e')">e</div><div class="kb-key" onclick="kbType('r')">r</div>
+      <div class="kb-key" onclick="kbType('t')">t</div><div class="kb-key" onclick="kbType('z')">z</div>
+      <div class="kb-key" onclick="kbType('u')">u</div><div class="kb-key" onclick="kbType('i')">i</div>
+      <div class="kb-key" onclick="kbType('o')">o</div><div class="kb-key" onclick="kbType('p')">p</div>
+    </div>
+    <!-- ROW 3: ASDFGHJKLÖ -->
+    <div class="kb-keys">
+      <div class="kb-key" onclick="kbType('a')">a</div><div class="kb-key" onclick="kbType('s')">s</div>
+      <div class="kb-key" onclick="kbType('d')">d</div><div class="kb-key" onclick="kbType('f')">f</div>
+      <div class="kb-key" onclick="kbType('g')">g</div><div class="kb-key" onclick="kbType('h')">h</div>
+      <div class="kb-key" onclick="kbType('j')">j</div><div class="kb-key" onclick="kbType('k')">k</div>
+      <div class="kb-key" onclick="kbType('l')">l</div><div class="kb-key" onclick="kbType('ö')">ö</div>
+    </div>
+    <!-- ROW 4: YXCVBNMÄÜ + Backspace -->
+    <div class="kb-keys2">
+      <div class="kb-key special" onclick="kbShift()">⇧</div>
+      <div class="kb-key" onclick="kbType('y')">y</div><div class="kb-key" onclick="kbType('x')">x</div>
+      <div class="kb-key" onclick="kbType('c')">c</div><div class="kb-key" onclick="kbType('v')">v</div>
+      <div class="kb-key" onclick="kbType('b')">b</div><div class="kb-key" onclick="kbType('n')">n</div>
+      <div class="kb-key" onclick="kbType('m')">m</div><div class="kb-key special" onclick="kbBack()">⌫</div>
+    </div>
+    <!-- ROW 5: Sonderzeichen + Leertaste -->
+    <div class="kb-keys4">
+      <div class="kb-key special" onclick="kbType('.')">. , -</div>
+      <div class="kb-key space" onclick="kbType(' ')">Leertaste</div>
+      <div class="kb-key special" onclick="kbType('ü')">ü ä</div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -929,6 +998,69 @@ function hideAC(inputId) {
     const list = document.getElementById('ac-'+inputId);
     if (list) list.style.display = 'none';
   }, 150);
+}
+
+// ═══════════════════════════════════════════════════
+// KEYBOARD MODAL
+// ═══════════════════════════════════════════════════
+let kbTarget = null;   // target input element
+let kbShifted = false;
+
+function openKb(inputEl, label) {
+  kbTarget = inputEl;
+  kbShifted = false;
+  document.getElementById('kbLabel').textContent = label || 'Eingabe';
+  document.getElementById('kbInput').value = inputEl.value || '';
+  document.getElementById('kbBg').classList.add('open');
+  // Try to focus the hidden input so scanner still works for barcode field
+  document.getElementById('kbInput').focus();
+}
+
+function closeKb() {
+  document.getElementById('kbBg').classList.remove('open');
+  kbTarget = null;
+}
+
+function confirmKb() {
+  if (kbTarget) {
+    kbTarget.value = document.getElementById('kbInput').value;
+    // Trigger oninput for autocomplete
+    kbTarget.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  closeKb();
+}
+
+function kbType(char) {
+  const inp = document.getElementById('kbInput');
+  const c = kbShifted ? char.toUpperCase() : char;
+  // Handle special multi-char keys
+  if (char === '. , -') {
+    // cycle through
+    inp.value += '.';
+  } else if (char === 'ü ä') {
+    inp.value += 'ü';
+  } else {
+    inp.value += c;
+  }
+  if (kbShifted) { kbShifted = false; updateKbShift(); }
+}
+
+function kbBack() {
+  const inp = document.getElementById('kbInput');
+  inp.value = inp.value.slice(0, -1);
+}
+
+function kbShift() {
+  kbShifted = !kbShifted;
+  updateKbShift();
+}
+
+function updateKbShift() {
+  document.querySelectorAll('.kb-key:not(.special):not(.num):not(.space)').forEach(k => {
+    if (k.textContent.length === 1) {
+      k.textContent = kbShifted ? k.textContent.toUpperCase() : k.textContent.toLowerCase();
+    }
+  });
 }
 
 function duplicateMode() {
