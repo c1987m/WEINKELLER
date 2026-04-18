@@ -8,204 +8,172 @@
 <meta name="apple-mobile-web-app-title" content="Weinkeller">
 <meta name="theme-color" content="#3a0f1e">
 <title>Weinkeller</title>
-
-<!-- ZXing Barcode Scanner -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.21.3/umd/index.min.js"></script>
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Josefin+Sans:wght@300;400;600&display=swap');
-
 :root {
-  --burg:  #5c1a2e;
-  --deep:  #3a0f1e;
-  --gold:  #c9a84c;
-  --gold2: #e8c97a;
-  --cr:    #f5efe6;
-  --cr2:   #e0d4c4;
-  --text:  #2a1a1a;
-  --muted: #8a6a6a;
-  --sh:    0 4px 24px rgba(58,15,30,.13);
+  --burg:#5c1a2e;--deep:#3a0f1e;--gold:#c9a84c;--gold2:#e8c97a;
+  --cr:#f5efe6;--cr2:#e0d4c4;--text:#2a1a1a;--muted:#8a6a6a;
+  --sh:0 4px 24px rgba(58,15,30,.13);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Josefin Sans', sans-serif; background: var(--cr); color: var(--text); min-height: 100vh; overscroll-behavior: none; }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Josefin Sans',sans-serif;background:var(--cr);color:var(--text);min-height:100vh;overscroll-behavior:none;}
 
 /* HEADER */
-header { background: linear-gradient(150deg,var(--deep),var(--burg)); padding-top: calc(env(safe-area-inset-top,0px) + 1.5rem); padding-bottom: 2.8rem; padding-left: 1.5rem; padding-right: 1.5rem; text-align: center; position: relative; }
-header::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:30px; background:var(--cr); clip-path:ellipse(55% 100% at 50% 100%); }
-header h1 { font-family:'Cormorant Garamond',serif; font-size:2.4rem; font-weight:300; color:var(--gold2); letter-spacing:.1em; }
-header p { font-size:.65rem; letter-spacing:.28em; text-transform:uppercase; color:rgba(245,239,230,.5); margin-top:.3rem; }
+header{background:linear-gradient(150deg,var(--deep),var(--burg));padding-top:calc(env(safe-area-inset-top,0px) + 1.5rem);padding-bottom:2.8rem;padding-left:1.5rem;padding-right:1.5rem;text-align:center;position:relative;}
+header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:30px;background:var(--cr);clip-path:ellipse(55% 100% at 50% 100%);}
+header h1{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:var(--gold2);letter-spacing:.1em;}
+header p{font-size:.65rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(245,239,230,.5);margin-top:.3rem;}
 
-/* SYNC INDICATOR */
-.sync-bar { background: rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; gap:.5rem; padding:.4rem; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(232,201,122,.7); }
-.sync-dot { width:7px; height:7px; border-radius:50%; background:#4caf50; flex-shrink:0; }
-.sync-dot.offline { background:#f44336; }
-.sync-dot.syncing { background:#ff9800; animation: pulse .8s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+/* SYNC */
+.sync-bar{background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.4rem;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,201,122,.7);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#4caf50;flex-shrink:0;}
+.sync-dot.offline{background:#f44336;}
+.sync-dot.syncing{background:#ff9800;animation:pulse .8s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* LAYOUT */
-.wrap { max-width:880px; margin:0 auto; padding:1.5rem 1rem calc(env(safe-area-inset-bottom,0px) + 5rem); }
+.wrap{max-width:880px;margin:0 auto;padding:1.5rem 1rem calc(env(safe-area-inset-bottom,0px) + 5rem);}
 
 /* STATS */
-.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; margin-bottom:1.5rem; }
-.stat { background:white; border-radius:14px; padding:.85rem .5rem; text-align:center; border:1px solid var(--cr2); box-shadow:var(--sh); }
-.stat .n { font-family:'Cormorant Garamond',serif; font-size:1.7rem; font-weight:600; color:var(--burg); line-height:1; }
-.stat .l { font-size:.55rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-top:.3rem; }
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.5rem;}
+.stat{background:white;border-radius:14px;padding:.85rem .5rem;text-align:center;border:1px solid var(--cr2);box-shadow:var(--sh);}
+.stat .n{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--burg);line-height:1;}
+.stat .l{font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:.3rem;}
 
 /* TABS */
-.tabs { display:flex; background:white; border-radius:14px; padding:4px; margin-bottom:1.5rem; border:1px solid var(--cr2); box-shadow:var(--sh); }
-.tab { flex:1; padding:.65rem .2rem; border:none; background:none; border-radius:11px; font-family:'Josefin Sans',sans-serif; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; color:var(--muted); transition:all .2s; }
-.tab.active { background:var(--burg); color:var(--gold2); }
+.tabs{display:flex;background:white;border-radius:14px;padding:4px;margin-bottom:1.5rem;border:1px solid var(--cr2);box-shadow:var(--sh);}
+.tab{flex:1;padding:.65rem .2rem;border:none;background:none;border-radius:11px;font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:var(--muted);transition:all .2s;}
+.tab.active{background:var(--burg);color:var(--gold2);}
 
-/* PANELS */
-.panel { display:none; }
-.panel.active { display:block; }
+.panel{display:none;}.panel.active{display:block;}
 
 /* CARD */
-.card { background:white; border-radius:18px; padding:1.5rem; border:1px solid var(--cr2); box-shadow:var(--sh); margin-bottom:1rem; }
-.card-title { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:300; color:var(--burg); margin-bottom:1.25rem; padding-bottom:.75rem; border-bottom:1px solid var(--cr2); }
+.card{background:white;border-radius:18px;padding:1.5rem;border:1px solid var(--cr2);box-shadow:var(--sh);margin-bottom:1rem;}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--burg);margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--cr2);}
 
 /* KELLER */
-.keller-row { display:flex; gap:.6rem; margin-bottom:1.25rem; }
-.keller-btn { flex:1; padding:.75rem; border-radius:12px; font-family:'Josefin Sans',sans-serif; font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .2s; border:1px solid var(--cr2); background:var(--cr); color:var(--muted); }
-.keller-btn.active { background:var(--deep); color:var(--gold2); border-color:var(--deep); box-shadow:0 3px 14px rgba(58,15,30,.3); }
+.keller-row{display:flex;gap:.6rem;margin-bottom:1.25rem;}
+.keller-btn{flex:1;padding:.75rem;border-radius:12px;font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;border:1px solid var(--cr2);background:var(--cr);color:var(--muted);}
+.keller-btn.active{background:var(--deep);color:var(--gold2);border-color:var(--deep);box-shadow:0 3px 14px rgba(58,15,30,.3);}
 
 /* MODE */
-.mode-row { display:flex; background:var(--cr); border-radius:12px; padding:4px; margin-bottom:1.25rem; border:1px solid var(--cr2); }
-.mode-btn { flex:1; padding:.65rem; border:none; border-radius:9px; font-family:'Josefin Sans',sans-serif; font-size:.73rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; background:none; color:var(--muted); transition:all .2s; }
-.mode-btn.in  { background:#2e7d32; color:white; }
-.mode-btn.out { background:#b71c1c; color:white; }
+.mode-row{display:flex;background:var(--cr);border-radius:12px;padding:4px;margin-bottom:1.25rem;border:1px solid var(--cr2);}
+.mode-btn{flex:1;padding:.65rem;border:none;border-radius:9px;font-family:'Josefin Sans',sans-serif;font-size:.73rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:none;color:var(--muted);transition:all .2s;}
+.mode-btn.in{background:#2e7d32;color:white;}
+.mode-btn.out{background:#b71c1c;color:white;}
 
-/* CAM BUTTON */
-.btn-cam { width:100%; padding:.9rem; background:linear-gradient(135deg,var(--burg),var(--deep)); color:var(--gold2); border:none; border-radius:12px; font-family:'Josefin Sans',sans-serif; font-size:.82rem; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; margin-bottom:.9rem; }
+/* BUTTONS */
+.btn-cam{width:100%;padding:.9rem;background:linear-gradient(135deg,var(--burg),var(--deep));color:var(--gold2);border:none;border-radius:12px;font-family:'Josefin Sans',sans-serif;font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;margin-bottom:.9rem;}
+.btn-save{width:100%;padding:1rem;margin-top:.5rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--deep);border:none;border-radius:12px;font-family:'Josefin Sans',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;}
 
 /* CAMERA MODAL */
-.cam-modal { display:none; position:fixed; inset:0; background:rgba(5,0,10,.96); z-index:500; flex-direction:column; }
-.cam-modal.open { display:flex; }
-.cam-header { display:flex; align-items:center; justify-content:space-between; padding:calc(env(safe-area-inset-top,0px) + 1rem) 1.2rem 1rem; flex-shrink:0; }
-.cam-title { font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--gold2); font-weight:300; }
-.cam-close { background:rgba(255,255,255,.12); border:none; color:white; border-radius:9px; padding:8px 16px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; }
-.cam-viewport { flex:1; position:relative; overflow:hidden; }
-#cam-video { width:100%; height:100%; object-fit:cover; display:block; }
-.cam-frame-wrap { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; pointer-events:none; }
-.cam-frame { width:78%; max-width:300px; aspect-ratio:3/1; border-radius:12px; border:2.5px solid rgba(201,168,76,.9); box-shadow:0 0 0 2000px rgba(0,0,0,.55); }
-.cam-hint { color:rgba(255,255,255,.65); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; margin-top:1rem; }
-.cam-status-text { color:rgba(255,200,100,.8); font-size:.72rem; text-align:center; padding:.6rem 1rem; min-height:1.8rem; }
-.cam-footer { padding:1rem 1.2rem calc(env(safe-area-inset-bottom,0px) + 1rem); flex-shrink:0; border-top:1px solid rgba(255,255,255,.08); }
-.cam-manual-label { font-size:.58rem; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:.4rem; display:block; }
-.cam-manual-row { display:flex; gap:.5rem; }
-.cam-manual-input { flex:1; padding:.65rem .85rem; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.15); border-radius:9px; color:white; font-family:'Josefin Sans',sans-serif; font-size:.9rem; outline:none; }
-.cam-manual-btn { padding:.65rem 1rem; background:var(--burg); color:var(--gold2); border:none; border-radius:9px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.75rem; white-space:nowrap; }
+.cam-modal{display:none;position:fixed;inset:0;background:rgba(5,0,10,.96);z-index:500;flex-direction:column;}
+.cam-modal.open{display:flex;}
+.cam-header{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 1rem) 1.2rem 1rem;flex-shrink:0;}
+.cam-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold2);font-weight:300;}
+.cam-close{background:rgba(255,255,255,.12);border:none;color:white;border-radius:9px;padding:8px 16px;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+.cam-viewport{flex:1;position:relative;overflow:hidden;}
+#cam-video{width:100%;height:100%;object-fit:cover;display:block;}
+.cam-frame-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;}
+.cam-frame{width:78%;max-width:300px;aspect-ratio:3/1;border-radius:12px;border:2.5px solid rgba(201,168,76,.9);box-shadow:0 0 0 2000px rgba(0,0,0,.55);}
+.cam-hint{color:rgba(255,255,255,.65);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;margin-top:1rem;}
+.cam-status-text{color:rgba(255,200,100,.8);font-size:.72rem;text-align:center;padding:.6rem 1rem;min-height:1.8rem;}
+.cam-footer{padding:1rem 1.2rem calc(env(safe-area-inset-bottom,0px) + 1rem);flex-shrink:0;border-top:1px solid rgba(255,255,255,.08);}
+.cam-manual-label{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.4rem;display:block;}
+.cam-manual-row{display:flex;gap:.5rem;}
+.cam-manual-input{flex:1;padding:.65rem .85rem;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);border-radius:9px;color:white;font-family:'Josefin Sans',sans-serif;font-size:.9rem;outline:none;}
+.cam-manual-btn{padding:.65rem 1rem;background:var(--burg);color:var(--gold2);border:none;border-radius:9px;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:.75rem;white-space:nowrap;}
 
 /* BC DISPLAY */
-.bc-show { background:var(--cr); border:1px solid var(--cr2); border-radius:9px; padding:.55rem .9rem; font-family:monospace; font-size:.92rem; color:var(--burg); margin-bottom:.9rem; display:none; }
+.bc-show{background:var(--cr);border:1px solid var(--cr2);border-radius:9px;padding:.55rem .9rem;font-family:monospace;font-size:.92rem;color:var(--burg);margin-bottom:.9rem;display:none;}
 
 /* FORM */
-.fg { display:flex; flex-direction:column; gap:.3rem; margin-bottom:.75rem; }
-.fg2 { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
-label { font-size:.58rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
-input, select, textarea { padding:.65rem .85rem; border:1px solid var(--cr2); border-radius:9px; font-family:'Josefin Sans',sans-serif; font-size:.88rem; color:var(--text); background:var(--cr); outline:none; width:100%; -webkit-appearance:none; }
-input:focus, select:focus, textarea:focus { border-color:var(--burg); background:white; }
-textarea { resize:vertical; min-height:70px; }
-.stars { display:flex; gap:.35rem; padding:.35rem 0; }
-.star { font-size:1.7rem; cursor:pointer; color:var(--cr2); transition:color .12s; line-height:1; user-select:none; -webkit-user-select:none; }
-.star.on { color:var(--gold); }
-.btn-save { width:100%; padding:1rem; margin-top:.5rem; background:linear-gradient(135deg,var(--gold),var(--gold2)); color:var(--deep); border:none; border-radius:12px; font-family:'Josefin Sans',sans-serif; font-size:.85rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; cursor:pointer; }
-.btn-dup { width:100%; padding:.8rem; margin-top:.5rem; background:white; color:var(--burg); border:2px solid var(--burg); border-radius:12px; font-family:'Josefin Sans',sans-serif; font-size:.82rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; cursor:pointer; }
-
-/* LOADING SPINNER */
-.loading { text-align:center; padding:3rem 1rem; color:var(--muted); }
-.spinner { width:36px; height:36px; border:3px solid var(--cr2); border-top-color:var(--burg); border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 1rem; }
-@keyframes spin { to { transform:rotate(360deg); } }
-
-/* TOAST */
-.toast { position:fixed; bottom:calc(env(safe-area-inset-bottom,0px) + 5.5rem); left:50%; transform:translateX(-50%); padding:.85rem 1.5rem; border-radius:12px; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.08em; box-shadow:0 8px 30px rgba(0,0,0,.25); z-index:400; white-space:nowrap; display:none; }
-.toast.ok  { background:#e8f5e9; border:1px solid #a5d6a7; color:#2e7d32; }
-.toast.out { background:#fff3e0; border:1px solid #ffcc80; color:#e65100; }
-.toast.err { background:#ffebee; border:1px solid #ef9a9a; color:#b71c1c; }
-
-/* BOTTLE CARD */
-.bgrid { display:grid; gap:.75rem; }
-.bcard { background:white; border-radius:16px; padding:1rem 1.1rem; border:1px solid var(--cr2); box-shadow:0 2px 12px rgba(58,15,30,.07); display:grid; grid-template-columns:48px 1fr auto; gap:.9rem; align-items:center; animation:up .22s ease; }
-@keyframes up { from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);} }
-.bdot { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
-.bname { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; line-height:1.2; }
-.bmeta { font-size:.68rem; color:var(--muted); margin-top:.15rem; line-height:1.5; }
-.badge { display:inline-block; font-size:.55rem; letter-spacing:.12em; text-transform:uppercase; padding:2px 7px; border-radius:5px; margin-top:.25rem; }
-.badge-z { background:#fde8ee; color:#c62828; }
-.badge-s { background:#e8f5e9; color:#2e7d32; }
-.bdel { background:none; border:none; cursor:pointer; font-size:1rem; color:#ddd; padding:4px; }
-
-/* FILTER */
-.filter-bar { display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap; }
-.filter-bar input, .filter-bar select { flex:1; min-width:130px; background:white; }
-
-/* EMPTY */
-.empty { text-align:center; padding:3.5rem 1rem; color:var(--muted); }
-.empty .ei { font-size:3.5rem; opacity:.3; margin-bottom:.75rem; }
-
-/* OVERVIEW */
-.ovc { background:white; border-radius:16px; padding:1.3rem; border:1px solid var(--cr2); box-shadow:var(--sh); margin-bottom:.75rem; }
-.ovh { font-size:.58rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin-bottom:1rem; }
-.brow { display:flex; align-items:center; gap:.65rem; margin-bottom:.55rem; }
-.blbl { font-size:.78rem; min-width:95px; }
-.btr { flex:1; height:10px; background:var(--cr); border-radius:5px; overflow:hidden; }
-.bfi { height:100%; border-radius:5px; }
-.bcn { font-size:.75rem; color:var(--muted); min-width:30px; text-align:right; }
-
-/* CONFIRM MODAL */
-.confirm-bg { display:none; position:fixed; inset:0; background:rgba(10,0,5,.72); z-index:600; align-items:center; justify-content:center; padding:1rem; }
-.confirm-bg.open { display:flex; }
-.confirm-box { background:white; border-radius:20px; padding:2rem; max-width:400px; width:100%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.4); animation:pop .2s ease; }
-@keyframes pop { from{transform:scale(.9);opacity:0;}to{transform:scale(1);opacity:1;} }
-.confirm-title { font-family:'Cormorant Garamond',serif; font-size:1.7rem; color:var(--burg); margin-bottom:.5rem; font-weight:300; }
-.confirm-sub { font-size:.82rem; color:var(--muted); margin-bottom:1.25rem; line-height:1.6; }
-.confirm-info { background:var(--cr); border-radius:12px; padding:1rem; margin-bottom:1.25rem; text-align:left; }
-.confirm-name { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-weight:600; }
-.confirm-meta { font-size:.75rem; color:var(--muted); margin-top:.25rem; line-height:1.5; }
-.confirm-btns { display:flex; gap:.75rem; }
-.btn-cancel  { flex:1; padding:.9rem; background:var(--cr); border:1px solid var(--cr2); border-radius:11px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
-.btn-confirm-red { flex:1; padding:.9rem; background:#b71c1c; color:white; border:none; border-radius:11px; cursor:pointer; font-family:'Josefin Sans',sans-serif; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; }
-
-/* KEYBOARD INPUT MODAL */
-.kb-bg { display:none; position:fixed; inset:0; background:rgba(10,0,5,.6); z-index:800; align-items:flex-end; justify-content:center; }
-.kb-bg.open { display:flex; }
-.kb-box { background:white; width:100%; max-width:600px; border-radius:20px 20px 0 0; padding:1.2rem 1rem 2rem; box-shadow:0 -8px 40px rgba(0,0,0,.3); }
-.kb-label { font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem; display:block; }
-.kb-input-row { display:flex; gap:.5rem; margin-bottom:.9rem; }
-.kb-input { flex:1; padding:.75rem 1rem; border:2px solid var(--burg); border-radius:11px; font-family:'Josefin Sans',sans-serif; font-size:1rem; color:var(--text); background:white; outline:none; }
-.kb-ok { padding:.75rem 1.2rem; background:var(--burg); color:var(--gold2); border:none; border-radius:11px; font-family:'Josefin Sans',sans-serif; font-size:.8rem; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
-.kb-cancel { padding:.75rem 1rem; background:var(--cr); color:var(--muted); border:1px solid var(--cr2); border-radius:11px; font-family:'Josefin Sans',sans-serif; font-size:.8rem; cursor:pointer; }
-.kb-keys { display:grid; grid-template-columns:repeat(10,1fr); gap:.3rem; margin-bottom:.4rem; }
-.kb-keys2 { display:grid; grid-template-columns:repeat(9,1fr); gap:.3rem; margin-bottom:.4rem; }
-.kb-keys3 { display:grid; grid-template-columns:1fr repeat(7,1fr) 1fr; gap:.3rem; margin-bottom:.4rem; }
-.kb-keys4 { display:grid; grid-template-columns:1fr 3fr 1fr; gap:.3rem; }
-.kb-key { padding:.55rem .2rem; background:var(--cr); border:1px solid var(--cr2); border-radius:7px; font-family:'Josefin Sans',sans-serif; font-size:.82rem; cursor:pointer; text-align:center; color:var(--text); user-select:none; -webkit-user-select:none; }
-.kb-key:active { background:var(--cr2); }
-.kb-key.special { background:#e8e0d8; font-size:.65rem; letter-spacing:.05em; }
-.kb-key.space { background:white; border-color:var(--cr2); }
-.kb-key.num { background:#f0e8dc; }
+.fg{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+label{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+input,select,textarea{padding:.65rem .85rem;border:1px solid var(--cr2);border-radius:9px;font-family:'Josefin Sans',sans-serif;font-size:.88rem;color:var(--text);background:var(--cr);outline:none;width:100%;-webkit-appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--burg);background:white;}
+textarea{resize:vertical;min-height:70px;}
+.stars{display:flex;gap:.35rem;padding:.35rem 0;}
+.star{font-size:1.7rem;cursor:pointer;color:var(--cr2);transition:color .12s;line-height:1;user-select:none;-webkit-user-select:none;}
+.star.on{color:var(--gold);}
 
 /* AUTOCOMPLETE */
-.ac-wrap { position:relative; }
-.ac-list { display:none; position:absolute; top:100%; left:0; right:0; background:white; border:1px solid var(--burg); border-top:none; border-radius:0 0 9px 9px; z-index:200; max-height:180px; overflow-y:auto; box-shadow:0 8px 20px rgba(58,15,30,.15); }
-.ac-item { padding:.6rem .85rem; font-family:'Josefin Sans',sans-serif; font-size:.85rem; cursor:pointer; color:var(--text); border-bottom:1px solid var(--cr2); }
-.ac-item:last-child { border-bottom:none; }
-.ac-item:hover { background:var(--cr); color:var(--burg); }
-.ac-item strong { color:var(--burg); }
+.ac-wrap{position:relative;}
+.ac-list{display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--burg);border-top:none;border-radius:0 0 9px 9px;z-index:200;max-height:180px;overflow-y:auto;box-shadow:0 8px 20px rgba(58,15,30,.15);}
+.ac-item{padding:.6rem .85rem;font-family:'Josefin Sans',sans-serif;font-size:.85rem;cursor:pointer;color:var(--text);border-bottom:1px solid var(--cr2);}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover{background:var(--cr);color:var(--burg);}
+.ac-item strong{color:var(--burg);}
+
+/* LOADING */
+.loading{text-align:center;padding:3rem 1rem;color:var(--muted);}
+.spinner{width:36px;height:36px;border:3px solid var(--cr2);border-top-color:var(--burg);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 5.5rem);left:50%;transform:translateX(-50%);padding:.85rem 1.5rem;border-radius:12px;font-family:'Josefin Sans',sans-serif;font-size:.78rem;letter-spacing:.08em;box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:400;white-space:nowrap;display:none;}
+.toast.ok{background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32;}
+.toast.out{background:#fff3e0;border:1px solid #ffcc80;color:#e65100;}
+.toast.err{background:#ffebee;border:1px solid #ef9a9a;color:#b71c1c;}
+
+/* BOTTLE CARD */
+.bgrid{display:grid;gap:.75rem;}
+.bcard{background:white;border-radius:16px;padding:1rem 1.1rem;border:1px solid var(--cr2);box-shadow:0 2px 12px rgba(58,15,30,.07);display:grid;grid-template-columns:48px 1fr auto;gap:.9rem;align-items:center;animation:up .22s ease;}
+@keyframes up{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.bdot{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+.bname{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;line-height:1.2;}
+.bmeta{font-size:.68rem;color:var(--muted);margin-top:.15rem;line-height:1.5;}
+.badge{display:inline-block;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:5px;margin-top:.25rem;}
+.badge-z{background:#fde8ee;color:#c62828;}
+.badge-s{background:#e8f5e9;color:#2e7d32;}
+.bdel{background:none;border:none;cursor:pointer;font-size:1rem;color:#ddd;padding:4px;}
+.bdel:hover{color:#e53935;}
+
+/* FILTER */
+.filter-bar{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;}
+.filter-bar input,.filter-bar select{flex:1;min-width:120px;background:white;}
+
+/* EMPTY */
+.empty{text-align:center;padding:3.5rem 1rem;color:var(--muted);}
+.empty .ei{font-size:3.5rem;opacity:.3;margin-bottom:.75rem;}
+
+/* OVERVIEW */
+.ovc{background:white;border-radius:16px;padding:1.3rem;border:1px solid var(--cr2);box-shadow:var(--sh);margin-bottom:.75rem;}
+.ovh{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
+.brow{display:flex;align-items:center;gap:.65rem;margin-bottom:.55rem;}
+.blbl{font-size:.78rem;min-width:95px;}
+.btr{flex:1;height:10px;background:var(--cr);border-radius:5px;overflow:hidden;}
+.bfi{height:100%;border-radius:5px;}
+.bcn{font-size:.75rem;color:var(--muted);min-width:30px;text-align:right;}
+
+/* CONFIRM MODAL */
+.confirm-bg{display:none;position:fixed;inset:0;background:rgba(10,0,5,.72);z-index:600;align-items:center;justify-content:center;padding:1rem;}
+.confirm-bg.open{display:flex;}
+.confirm-box{background:white;border-radius:20px;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);animation:pop .2s ease;}
+@keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.confirm-title{font-family:'Cormorant Garamond',serif;font-size:1.7rem;color:var(--burg);margin-bottom:.5rem;font-weight:300;}
+.confirm-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;}
+.confirm-info{background:var(--cr);border-radius:12px;padding:1rem;margin-bottom:1.25rem;text-align:left;}
+.confirm-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;}
+.confirm-meta{font-size:.75rem;color:var(--muted);margin-top:.25rem;line-height:1.5;}
+.confirm-btns{display:flex;gap:.75rem;}
+.btn-cancel{flex:1;padding:.9rem;background:var(--cr);border:1px solid var(--cr2);border-radius:11px;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;}
+.btn-confirm-red{flex:1;padding:.9rem;background:#b71c1c;color:white;border:none;border-radius:11px;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;}
 
 /* EDIT MODAL */
-.edit-bg { display:none; position:fixed; inset:0; background:rgba(10,0,5,.72); z-index:600; align-items:flex-start; justify-content:center; padding:1rem; overflow-y:auto; }
-.edit-bg.open { display:flex; }
-.edit-box { background:white; border-radius:20px; padding:1.5rem; max-width:480px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.4); margin:auto; }
-.edit-title { font-family:"Cormorant Garamond",serif; font-size:1.5rem; color:var(--burg); margin-bottom:1.25rem; padding-bottom:.75rem; border-bottom:1px solid var(--cr2); font-weight:300; display:flex; justify-content:space-between; align-items:center; }
-.btn-edit-save { width:100%; padding:.9rem; background:linear-gradient(135deg,var(--gold),var(--gold2)); color:var(--deep); border:none; border-radius:11px; cursor:pointer; font-family:"Josefin Sans",sans-serif; font-size:.82rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; margin-top:.5rem; }
+.edit-bg{display:none;position:fixed;inset:0;background:rgba(10,0,5,.72);z-index:600;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;}
+.edit-bg.open{display:flex;}
+.edit-box{background:white;border-radius:20px;padding:1.5rem;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);margin:auto;}
+.edit-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--burg);margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--cr2);font-weight:300;display:flex;justify-content:space-between;align-items:center;}
+.btn-edit-save{width:100%;padding:.9rem;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--deep);border:none;border-radius:11px;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-top:.5rem;}
 
 /* INSTALL HINT */
-.install-hint { background:linear-gradient(135deg,var(--deep),var(--burg)); color:var(--gold2); border-radius:14px; padding:1rem 1.2rem; margin-bottom:1.25rem; font-size:.75rem; line-height:1.8; letter-spacing:.04em; }
+.install-hint{background:linear-gradient(135deg,var(--deep),var(--burg));color:var(--gold2);border-radius:14px;padding:1rem 1.2rem;margin-bottom:1.25rem;font-size:.75rem;line-height:1.8;letter-spacing:.04em;}
 
-@media(max-width:430px) { .fg2{grid-template-columns:1fr;} .stats{gap:.5rem;} .stat .n{font-size:1.5rem;} }
+@media(max-width:430px){header h1{font-size:1.9rem;}.fg2{grid-template-columns:1fr;}.stats{gap:.5rem;}}
 </style>
 </head>
 <body>
@@ -217,7 +185,6 @@ textarea { resize:vertical; min-height:70px; }
   <div style="position:absolute;bottom:-1px;left:0;right:0;height:30px;background:var(--cr);clip-path:ellipse(55% 100% at 50% 100%)"></div>
 </header>
 
-<!-- Sync status -->
 <div class="sync-bar">
   <div class="sync-dot syncing" id="syncDot"></div>
   <span id="syncText">Verbinde …</span>
@@ -234,46 +201,38 @@ textarea { resize:vertical; min-height:70px; }
 </div>
 
 <div class="wrap">
-
-  <!-- Install hint (iOS only, first visit) -->
   <div class="install-hint" id="installHint" style="display:none">
     📱 <strong>Als App installieren:</strong> Tippe auf <strong>Teilen</strong> (□↑) → <strong>„Zum Home-Bildschirm"</strong> → fertig!
   </div>
 
-  <!-- STATS -->
   <div class="stats">
     <div class="stat"><div class="n" id="stTotal">–</div><div class="l">Gesamt</div></div>
     <div class="stat"><div class="n" id="stZobing" style="color:#c62828">–</div><div class="l">Zöbing</div></div>
-    <div class="stat"><div class="n" id="stStein"  style="color:#2e7d32">–</div><div class="l">Stein</div></div>
-    <div class="stat"><div class="n" id="stWert"   style="font-size:1.2rem">–</div><div class="l">Wert</div></div>
+    <div class="stat"><div class="n" id="stStein" style="color:#2e7d32">–</div><div class="l">Stein</div></div>
+    <div class="stat"><div class="n" id="stWert" style="font-size:1.2rem">–</div><div class="l">Wert</div></div>
   </div>
 
-  <!-- TABS -->
   <div class="tabs">
     <button class="tab active" onclick="goTab('scan',this)">📷 Scannen</button>
     <button class="tab" onclick="goTab('bestand',this)">📋 Bestand</button>
     <button class="tab" onclick="goTab('ov',this)">📊 Übersicht</button>
   </div>
 
-  <!-- ══ SCAN ══ -->
+  <!-- SCAN TAB -->
   <div id="tab-scan" class="panel active">
     <div class="card">
       <div class="card-title">Flasche scannen</div>
-
       <div style="font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Weinkeller wählen</div>
       <div class="keller-row">
         <button class="keller-btn active" id="kBtn-Z" onclick="setKeller('Zöbing')">🏰 Keller Zöbing</button>
-        <button class="keller-btn"        id="kBtn-S" onclick="setKeller('Stein')">🏰 Keller Stein</button>
+        <button class="keller-btn" id="kBtn-S" onclick="setKeller('Stein')">🏰 Keller Stein</button>
       </div>
-
       <div class="mode-row">
-        <button class="mode-btn in" id="modeIn"  onclick="setMode('in')">📥 Einlagern</button>
-        <button class="mode-btn"    id="modeOut" onclick="setMode('out')">📤 Entnehmen</button>
+        <button class="mode-btn in" id="modeIn" onclick="setMode('in')">📥 Einlagern</button>
+        <button class="mode-btn" id="modeOut" onclick="setMode('out')">📤 Entnehmen</button>
       </div>
-
       <button class="btn-cam" onclick="openCam()">📷 Barcode scannen</button>
       <div class="bc-show" id="bcShow"></div>
-
       <p style="font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.45rem">🔫 Bluetooth-Scanner oder manuell eingeben</p>
       <div style="display:flex;gap:.5rem">
         <input type="text" id="manIn" placeholder="Scanner bereit … oder Code tippen" inputmode="numeric" autocomplete="off"
@@ -281,26 +240,18 @@ textarea { resize:vertical; min-height:70px; }
           onkeydown="if(event.key==='Enter'){useManual();event.preventDefault();}"/>
         <button onclick="useManual()" style="padding:.65rem 1rem;background:var(--burg);color:var(--gold2);border:none;border-radius:9px;cursor:pointer;font-family:'Josefin Sans',sans-serif;font-size:.75rem;white-space:nowrap">OK</button>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.5rem">
-        <p style="font-size:.62rem;color:var(--muted)">💡 Bluetooth-Scanner: Code scannen → automatisch übernommen</p>
-        <button onclick="document.getElementById('manIn').focus();document.getElementById('manIn').click();"
-          style="background:var(--cr);border:1px solid var(--cr2);border-radius:9px;padding:.4rem .8rem;
-          font-family:'Josefin Sans',sans-serif;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
-          color:var(--burg);cursor:pointer;white-space:nowrap;flex-shrink:0;margin-left:.75rem">
-          ⌨️ Tastatur
-        </button>
-      </div>
+      <p style="font-size:.62rem;color:var(--muted);margin-top:.4rem">💡 Bluetooth-Scanner (Mac/iOS Modus) koppeln → automatisch übernommen</p>
     </div>
 
     <!-- EINLAGERN FORM -->
     <div class="card" id="formCard" style="display:none">
       <div class="card-title">Wein erfassen – Keller <span id="formKellerLabel"></span></div>
       <div class="fg ac-wrap">
-          <label>Weingut *</label>
-          <input type="text" id="fWG" onfocus="this.blur();openKb(this,'Weingut')" placeholder="z.B. Weingut Muster" autocomplete="off"
-            oninput="showAC('fWG','wg',this.value)" onblur="hideAC('fWG')" onfocus="showAC('fWG','wg',this.value)"/>
-          <div class="ac-list" id="ac-fWG"></div>
-        </div>
+        <label>Weingut *</label>
+        <input type="text" id="fWG" placeholder="z.B. Weingut Muster" autocomplete="off"
+          oninput="showAC('fWG','wg',this.value)" onblur="hideAC('fWG')" onfocus="showAC('fWG','wg',this.value)"/>
+        <div class="ac-list" id="ac-fWG"></div>
+      </div>
       <div class="fg2">
         <div class="fg"><label>Weintyp *</label>
           <select id="fTyp">
@@ -311,17 +262,17 @@ textarea { resize:vertical; min-height:70px; }
         </div>
         <div class="fg ac-wrap">
           <label>Sorte / Cuvée</label>
-          <input type="text" id="fSo" onfocus="this.blur();openKb(this,'Sorte / Cuvée')" placeholder="z.B. Blaufränkisch" autocomplete="off"
+          <input type="text" id="fSo" placeholder="z.B. Blaufränkisch" autocomplete="off"
             oninput="showAC('fSo','so',this.value)" onblur="hideAC('fSo')" onfocus="showAC('fSo','so',this.value)"/>
           <div class="ac-list" id="ac-fSo"></div>
         </div>
         <div class="fg ac-wrap">
           <label>Lage / Bezeichnung</label>
-          <input type="text" id="fLa" onfocus="this.blur();openKb(this,'Lage / Bezeichnung')" placeholder="z.B. Hochäcker" autocomplete="off"
+          <input type="text" id="fLa" placeholder="z.B. Hochäcker" autocomplete="off"
             oninput="showAC('fLa','la',this.value)" onblur="hideAC('fLa')" onfocus="showAC('fLa','la',this.value)"/>
           <div class="ac-list" id="ac-fLa"></div>
         </div>
-        <div class="fg"><label>Jahrgang</label><input type="number" id="fJa" onfocus="this.blur();openKb(this,'Jahrgang')" placeholder="2021" inputmode="numeric"/></div>
+        <div class="fg"><label>Jahrgang</label><input type="number" id="fJa" placeholder="2021" inputmode="numeric"/></div>
         <div class="fg"><label>Flaschengröße</label>
           <select id="fGr">
             <option value="0.375">0,375 L – Halbe</option>
@@ -333,8 +284,10 @@ textarea { resize:vertical; min-height:70px; }
             <option value="12.0">12,0 L – Balthazar</option>
           </select>
         </div>
-        <div class="fg"><label>Preis in Euro</label><input type="number" id="fPr" onfocus="this.blur();openKb(this,'Preis in Euro')" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
-        <div class="fg"><label>Alkohol %Vol</label><input type="number" id="fAlk" onfocus="this.blur();openKb(this,'Alkohol %Vol')" placeholder="13.0" step="0.1" min="0" max="25" inputmode="decimal"/></div>
+        <div class="fg"><label>Preis in Euro</label><input type="number" id="fPr" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
+        <div class="fg"><label>Alkohol %Vol</label>
+          <input type="text" id="fAlk" placeholder="z.B. 13,5" inputmode="decimal" autocomplete="off"/>
+        </div>
       </div>
       <div class="fg"><label>Bewertung</label>
         <div class="stars">
@@ -344,13 +297,13 @@ textarea { resize:vertical; min-height:70px; }
         </div>
       </div>
       <div class="fg"><label>Sonstige Anmerkungen</label>
-        <textarea id="fNo" onfocus="this.blur();openKb(this,'Anmerkungen')" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
+        <textarea id="fNo" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
       </div>
       <button class="btn-save" onclick="saveBottle()">📥 Flasche einlagern</button>
     </div>
   </div>
 
-  <!-- ══ BESTAND ══ -->
+  <!-- BESTAND TAB -->
   <div id="tab-bestand" class="panel">
     <div class="filter-bar">
       <input type="text" id="sq" placeholder="🔍 Suchen …" oninput="renderList()"/>
@@ -371,64 +324,9 @@ textarea { resize:vertical; min-height:70px; }
     <div id="bGrid"><div class="loading"><div class="spinner"></div>Lade Bestand …</div></div>
   </div>
 
-  <!-- ══ ÜBERSICHT ══ -->
+  <!-- ÜBERSICHT TAB -->
   <div id="tab-ov" class="panel">
     <div id="ovContent"><div class="loading"><div class="spinner"></div>Lade Daten …</div></div>
-  </div>
-
-</div><!-- /wrap -->
-
-<!-- EDIT MODAL -->
-<div class="edit-bg" id="editBg">
-  <div class="edit-box">
-    <div class="edit-title">
-      ✏️ Flasche bearbeiten
-      <button onclick="closeEdit()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)">✕</button>
-    </div>
-    <input type="hidden" id="editId"/>
-    <div class="fg"><label>Weingut *</label><input type="text" id="eWG" onfocus="this.blur();openKb(this,'Weingut')" placeholder="z.B. Weingut Muster"/></div>
-    <div class="fg2">
-      <div class="fg"><label>Weintyp *</label>
-        <select id="eTyp">
-          <option value="">– wählen –</option>
-          <option>Rotwein</option><option>Weißwein</option><option>Rosé</option>
-          <option>Sekt</option><option>Champagner</option><option>Weißburgunder</option><option>Sonstiges</option>
-        </select>
-      </div>
-      <div class="fg"><label>Sorte / Cuvée</label><input type="text" id="eSo" onfocus="this.blur();openKb(this,'Sorte / Cuvée')" placeholder="z.B. Blaufränkisch"/></div>
-      <div class="fg"><label>Lage / Bezeichnung</label><input type="text" id="eLa" onfocus="this.blur();openKb(this,'Lage / Bezeichnung')" placeholder="z.B. Hochäcker"/></div>
-      <div class="fg"><label>Jahrgang</label><input type="number" id="eJa" onfocus="this.blur();openKb(this,'Jahrgang')" placeholder="2021" inputmode="numeric"/></div>
-      <div class="fg"><label>Flaschengröße</label>
-        <select id="eGr">
-          <option value="0.375">0,375 L – Halbe</option>
-          <option value="0.75">0,75 L – Standard</option>
-          <option value="1.5">1,5 L – Magnum</option>
-          <option value="3.0">3,0 L – Jeroboam</option>
-          <option value="6.0">6,0 L – Methusalem</option>
-          <option value="9.0">9,0 L – Salmanazar</option>
-          <option value="12.0">12,0 L – Balthazar</option>
-        </select>
-      </div>
-      <div class="fg"><label>Preis in Euro</label><input type="number" id="ePr" onfocus="this.blur();openKb(this,'Preis in Euro')" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
-      <div class="fg"><label>Alkohol %Vol</label><input type="number" id="eAlk" onfocus="this.blur();openKb(this,'Alkohol %Vol')" placeholder="13.0" step="0.1" min="0" max="25" inputmode="decimal"/></div>
-      <div class="fg"><label>Keller</label>
-        <select id="eKeller">
-          <option value="Zöbing">Keller Zöbing</option>
-          <option value="Stein">Keller Stein</option>
-        </select>
-      </div>
-    </div>
-    <div class="fg"><label>Bewertung</label>
-      <div class="stars" id="eStars">
-        <span class="star" onclick="rateEdit(1)">★</span><span class="star" onclick="rateEdit(2)">★</span>
-        <span class="star" onclick="rateEdit(3)">★</span><span class="star" onclick="rateEdit(4)">★</span>
-        <span class="star" onclick="rateEdit(5)">★</span>
-      </div>
-    </div>
-    <div class="fg"><label>Sonstige Anmerkungen</label>
-      <textarea id="eNo" onfocus="this.blur();openKb(this,'Anmerkungen')" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
-    </div>
-    <button class="btn-edit-save" onclick="saveEdit()">💾 Änderungen speichern</button>
   </div>
 </div>
 
@@ -472,415 +370,399 @@ textarea { resize:vertical; min-height:70px; }
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- KEYBOARD MODAL -->
-<div class="kb-bg" id="kbBg">
-  <div class="kb-box">
-    <span class="kb-label" id="kbLabel">Eingabe</span>
-    <div class="kb-input-row">
-      <input class="kb-input" id="kbInput" type="text" autocomplete="off" autocorrect="off" spellcheck="false"/>
-      <button class="kb-cancel" onclick="closeKb()">✕</button>
-      <button class="kb-ok" onclick="confirmKb()">OK ✓</button>
+<!-- EDIT MODAL -->
+<div class="edit-bg" id="editBg">
+  <div class="edit-box">
+    <div class="edit-title">
+      ✏️ Flasche bearbeiten
+      <button onclick="closeEdit()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)">✕</button>
     </div>
-    <!-- ROW 1: numbers -->
-    <div class="kb-keys">
-      <div class="kb-key num" onclick="kbType('1')">1</div><div class="kb-key num" onclick="kbType('2')">2</div>
-      <div class="kb-key num" onclick="kbType('3')">3</div><div class="kb-key num" onclick="kbType('4')">4</div>
-      <div class="kb-key num" onclick="kbType('5')">5</div><div class="kb-key num" onclick="kbType('6')">6</div>
-      <div class="kb-key num" onclick="kbType('7')">7</div><div class="kb-key num" onclick="kbType('8')">8</div>
-      <div class="kb-key num" onclick="kbType('9')">9</div><div class="kb-key num" onclick="kbType('0')">0</div>
+    <input type="hidden" id="editId"/>
+    <div class="fg ac-wrap">
+      <label>Weingut *</label>
+      <input type="text" id="eWG" placeholder="z.B. Weingut Muster" autocomplete="off"
+        oninput="showAC('eWG','wg',this.value)" onblur="hideAC('eWG')" onfocus="showAC('eWG','wg',this.value)"/>
+      <div class="ac-list" id="ac-eWG"></div>
     </div>
-    <!-- ROW 2: QWERTZUIOP -->
-    <div class="kb-keys">
-      <div class="kb-key" onclick="kbType('q')">q</div><div class="kb-key" onclick="kbType('w')">w</div>
-      <div class="kb-key" onclick="kbType('e')">e</div><div class="kb-key" onclick="kbType('r')">r</div>
-      <div class="kb-key" onclick="kbType('t')">t</div><div class="kb-key" onclick="kbType('z')">z</div>
-      <div class="kb-key" onclick="kbType('u')">u</div><div class="kb-key" onclick="kbType('i')">i</div>
-      <div class="kb-key" onclick="kbType('o')">o</div><div class="kb-key" onclick="kbType('p')">p</div>
+    <div class="fg2">
+      <div class="fg"><label>Weintyp *</label>
+        <select id="eTyp">
+          <option value="">– wählen –</option>
+          <option>Rotwein</option><option>Weißwein</option><option>Rosé</option>
+          <option>Sekt</option><option>Champagner</option><option>Weißburgunder</option><option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="fg ac-wrap">
+        <label>Sorte / Cuvée</label>
+        <input type="text" id="eSo" placeholder="z.B. Blaufränkisch" autocomplete="off"
+          oninput="showAC('eSo','so',this.value)" onblur="hideAC('eSo')" onfocus="showAC('eSo','so',this.value)"/>
+        <div class="ac-list" id="ac-eSo"></div>
+      </div>
+      <div class="fg ac-wrap">
+        <label>Lage / Bezeichnung</label>
+        <input type="text" id="eLa" placeholder="z.B. Hochäcker" autocomplete="off"
+          oninput="showAC('eLa','la',this.value)" onblur="hideAC('eLa')" onfocus="showAC('eLa','la',this.value)"/>
+        <div class="ac-list" id="ac-eLa"></div>
+      </div>
+      <div class="fg"><label>Jahrgang</label><input type="number" id="eJa" placeholder="2021" inputmode="numeric"/></div>
+      <div class="fg"><label>Flaschengröße</label>
+        <select id="eGr">
+          <option value="0.375">0,375 L – Halbe</option>
+          <option value="0.75">0,75 L – Standard</option>
+          <option value="1.5">1,5 L – Magnum</option>
+          <option value="3.0">3,0 L – Jeroboam</option>
+          <option value="6.0">6,0 L – Methusalem</option>
+          <option value="9.0">9,0 L – Salmanazar</option>
+          <option value="12.0">12,0 L – Balthazar</option>
+        </select>
+      </div>
+      <div class="fg"><label>Preis in Euro</label><input type="number" id="ePr" placeholder="18.50" step="0.01" inputmode="decimal"/></div>
+      <div class="fg"><label>Alkohol %Vol</label>
+        <input type="text" id="eAlk" placeholder="z.B. 13,5" inputmode="decimal" autocomplete="off"/>
+      </div>
+      <div class="fg"><label>Keller</label>
+        <select id="eKeller">
+          <option value="Zöbing">Keller Zöbing</option>
+          <option value="Stein">Keller Stein</option>
+        </select>
+      </div>
     </div>
-    <!-- ROW 3: ASDFGHJKLÖ -->
-    <div class="kb-keys">
-      <div class="kb-key" onclick="kbType('a')">a</div><div class="kb-key" onclick="kbType('s')">s</div>
-      <div class="kb-key" onclick="kbType('d')">d</div><div class="kb-key" onclick="kbType('f')">f</div>
-      <div class="kb-key" onclick="kbType('g')">g</div><div class="kb-key" onclick="kbType('h')">h</div>
-      <div class="kb-key" onclick="kbType('j')">j</div><div class="kb-key" onclick="kbType('k')">k</div>
-      <div class="kb-key" onclick="kbType('l')">l</div><div class="kb-key" onclick="kbType('ö')">ö</div>
+    <div class="fg"><label>Bewertung</label>
+      <div class="stars" id="eStars">
+        <span class="star" onclick="rateEdit(1)">★</span><span class="star" onclick="rateEdit(2)">★</span>
+        <span class="star" onclick="rateEdit(3)">★</span><span class="star" onclick="rateEdit(4)">★</span>
+        <span class="star" onclick="rateEdit(5)">★</span>
+      </div>
     </div>
-    <!-- ROW 4: YXCVBNMÄÜ + Backspace -->
-    <div class="kb-keys2">
-      <div class="kb-key special" onclick="kbShift()">⇧</div>
-      <div class="kb-key" onclick="kbType('y')">y</div><div class="kb-key" onclick="kbType('x')">x</div>
-      <div class="kb-key" onclick="kbType('c')">c</div><div class="kb-key" onclick="kbType('v')">v</div>
-      <div class="kb-key" onclick="kbType('b')">b</div><div class="kb-key" onclick="kbType('n')">n</div>
-      <div class="kb-key" onclick="kbType('m')">m</div><div class="kb-key special" onclick="kbBack()">⌫</div>
+    <div class="fg"><label>Sonstige Anmerkungen</label>
+      <textarea id="eNo" placeholder="Aromen, Anlass, Trinkreife …"></textarea>
     </div>
-    <!-- ROW 5: Sonderzeichen + Leertaste -->
-    <div class="kb-keys4">
-      <div class="kb-key special" onclick="kbType('.')">. , -</div>
-      <div class="kb-key space" onclick="kbType(' ')">Leertaste</div>
-      <div class="kb-key special" onclick="kbType('ü')">ü ä</div>
-    </div>
+    <button class="btn-edit-save" onclick="saveEdit()">💾 Änderungen speichern</button>
   </div>
 </div>
 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-// ═══════════════════════════════════════════════════
-// SUPABASE INIT
-// ═══════════════════════════════════════════════════
-const SUPABASE_URL  = 'https://ekmjkkimndwaefalrmho.supabase.co';
-const SUPABASE_KEY  = 'sb_publishable_GQoBHy3CYrlF4sxDULUpag_rwvcPmHB';
+// ── SUPABASE ──
+const SUPABASE_URL = 'https://ekmjkkimndwaefalrmho.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_GQoBHy3CYrlF4sxDULUpag_rwvcPmHB';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ═══════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════
-let bottles    = [];
-let curKeller  = 'Zöbing';
-let curMode    = 'in';
-let curCode    = '';
-let curRating  = 0;
-let removeId   = null;
-let codeReader = null;
-let camStream  = null;
+// ── STATE ──
+let bottles=[], curKeller='Zöbing', curMode='in', curCode='', curRating=0, removeId=null;
+let codeReader=null, camStream=null, editRating=0;
 
-let lastSaved = null; // stores last saved bottle data for duplication
+const EM={Rotwein:'🍷',Weißwein:'🥂',Rosé:'🌸',Sekt:'🍾',Champagner:'🍾',Weißburgunder:'🫗',Sonstiges:'🫙'};
+const CL={Rotwein:'#c62828',Weißwein:'#d4a017',Rosé:'#c2185b',Sekt:'#2e7d32',Champagner:'#e65100',Weißburgunder:'#1565c0',Sonstiges:'#6a1b9a'};
+const BG={Rotwein:'#fde8ee',Weißwein:'#fef9e7',Rosé:'#fce4ec',Sekt:'#e8f5e9',Champagner:'#fff8e1',Weißburgunder:'#e8eaf6',Sonstiges:'#f3e5f5'};
 
-const EM = {Rotwein:'🍷',Weißwein:'🥂',Rosé:'🌸',Sekt:'🍾',Champagner:'🍾',Weißburgunder:'🫗',Sonstiges:'🫙'};
-const CL = {Rotwein:'#c62828',Weißwein:'#d4a017',Rosé:'#c2185b',Sekt:'#2e7d32',Champagner:'#e65100',Weißburgunder:'#1565c0',Sonstiges:'#6a1b9a'};
-const BG = {Rotwein:'#fde8ee',Weißwein:'#fef9e7',Rosé:'#fce4ec',Sekt:'#e8f5e9',Champagner:'#fff8e1',Weißburgunder:'#e8eaf6',Sonstiges:'#f3e5f5'};
-
-// ═══════════════════════════════════════════════════
-// INSTALL HINT (iOS)
-// ═══════════════════════════════════════════════════
+// ── INSTALL HINT ──
 (function(){
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.navigator.standalone === true;
-  if (isIOS && !isStandalone && !localStorage.getItem('hintSeen')) {
-    document.getElementById('installHint').style.display = 'block';
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone===true;
+  if(isIOS&&!isStandalone&&!localStorage.getItem('hintSeen')){
+    document.getElementById('installHint').style.display='block';
     localStorage.setItem('hintSeen','1');
   }
 })();
 
-// ═══════════════════════════════════════════════════
-// SUPABASE: LOAD + REALTIME
-// ═══════════════════════════════════════════════════
-async function loadBottles() {
+// ── SUPABASE LOAD + REALTIME ──
+async function loadBottles(){
   setSyncStatus('syncing','Lade …');
-  const { data, error } = await sb.from('bottles').select('*').order('created_at', { ascending: false });
-  if (error) {
-    setSyncStatus('offline','Fehler beim Laden');
-    showToast('⚠️ Verbindungsfehler: '+error.message,'err');
-    return;
-  }
-  bottles = data || [];
+  const {data,error}=await sb.from('bottles').select('*').order('created_at',{ascending:false});
+  if(error){setSyncStatus('offline','Fehler');showToast('⚠️ '+error.message,'err');return;}
+  bottles=data||[];
   setSyncStatus('online','Verbunden · Echtzeit');
   updateStats();
-  if (document.getElementById('tab-bestand').classList.contains('active')) renderList();
-  if (document.getElementById('tab-ov').classList.contains('active')) renderOv();
+  if(document.getElementById('tab-bestand').classList.contains('active'))renderList();
+  if(document.getElementById('tab-ov').classList.contains('active'))renderOv();
 }
 
-// Realtime subscription — updates when anyone adds/removes a bottle
-function subscribeRealtime() {
+function subscribeRealtime(){
   sb.channel('bottles-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'bottles' }, () => {
-      loadBottles();
-    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'bottles'},()=>loadBottles())
     .subscribe();
 }
 
-async function manualRefresh() {
-  const icon = document.getElementById('refreshIcon');
-  icon.style.transition = 'transform .7s ease';
-  icon.style.transform = 'rotate(360deg)';
-  setTimeout(() => { icon.style.transition='none'; icon.style.transform='rotate(0deg)'; }, 750);
+function setSyncStatus(state,text){
+  document.getElementById('syncDot').className='sync-dot'+(state==='online'?'':' '+state);
+  document.getElementById('syncText').textContent=text;
+}
+
+async function manualRefresh(){
+  const icon=document.getElementById('refreshIcon');
+  icon.style.transition='transform .7s ease';
+  icon.style.transform='rotate(360deg)';
+  setTimeout(()=>{icon.style.transition='none';icon.style.transform='rotate(0deg)';},750);
   await loadBottles();
-  if (document.getElementById('tab-bestand').classList.contains('active')) renderList();
-  if (document.getElementById('tab-ov').classList.contains('active')) renderOv();
-  showToast('✓ Aktualisiert!', 'ok');
+  showToast('✓ Aktualisiert!','ok');
 }
 
-function setSyncStatus(state, text) {
-  const dot  = document.getElementById('syncDot');
-  const span = document.getElementById('syncText');
-  dot.className = 'sync-dot ' + (state === 'online' ? '' : state);
-  span.textContent = text;
+// ── STATS ──
+function updateStats(){
+  document.getElementById('stTotal').textContent=bottles.length;
+  document.getElementById('stZobing').textContent=bottles.filter(b=>b.keller==='Zöbing').length;
+  document.getElementById('stStein').textContent=bottles.filter(b=>b.keller==='Stein').length;
+  document.getElementById('stWert').textContent='€'+Math.round(bottles.reduce((s,b)=>s+(parseFloat(b.pr)||0),0));
 }
 
-// ═══════════════════════════════════════════════════
-// STATS
-// ═══════════════════════════════════════════════════
-function updateStats() {
-  document.getElementById('stTotal').textContent  = bottles.length;
-  document.getElementById('stZobing').textContent = bottles.filter(b=>b.keller==='Zöbing').length;
-  document.getElementById('stStein').textContent  = bottles.filter(b=>b.keller==='Stein').length;
-  const w = bottles.reduce((s,b)=>s+(parseFloat(b.pr)||0),0);
-  document.getElementById('stWert').textContent   = '€'+Math.round(w);
-}
-
-// ═══════════════════════════════════════════════════
-// TABS
-// ═══════════════════════════════════════════════════
-function goTab(t, btn) {
+// ── TABS ──
+function goTab(t,btn){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
   btn.classList.add('active');
-  if (t==='bestand') renderList();
-  if (t==='ov')      renderOv();
-  if (t!=='scan')    closeCam();
+  if(t==='bestand')renderList();
+  if(t==='ov')renderOv();
+  if(t!=='scan')closeCam();
 }
 
-// ═══════════════════════════════════════════════════
-// KELLER + MODE
-// ═══════════════════════════════════════════════════
-function setKeller(k) {
-  curKeller = k;
-  document.getElementById('kBtn-Z').classList.toggle('active', k==='Zöbing');
-  document.getElementById('kBtn-S').classList.toggle('active', k==='Stein');
-  document.getElementById('formKellerLabel').textContent = k;
+// ── KELLER + MODE ──
+function setKeller(k){
+  curKeller=k;
+  document.getElementById('kBtn-Z').classList.toggle('active',k==='Zöbing');
+  document.getElementById('kBtn-S').classList.toggle('active',k==='Stein');
+  document.getElementById('formKellerLabel').textContent=k;
   resetCode();
 }
-function setMode(m) {
-  curMode = m;
-  document.getElementById('modeIn').className  = 'mode-btn'+(m==='in' ?' in':'');
-  document.getElementById('modeOut').className = 'mode-btn'+(m==='out'?' out':'');
+function setMode(m){
+  curMode=m;
+  document.getElementById('modeIn').className='mode-btn'+(m==='in'?' in':'');
+  document.getElementById('modeOut').className='mode-btn'+(m==='out'?' out':'');
   resetCode();
 }
 
-// ═══════════════════════════════════════════════════
-// CAMERA
-// ═══════════════════════════════════════════════════
-async function openCam() {
+// ── CAMERA ──
+async function openCam(){
   document.getElementById('camModal').classList.add('open');
-  document.getElementById('camStatusText').textContent = '';
-  document.getElementById('camManIn').value = '';
-  const video = document.getElementById('cam-video');
-  if (camStream)  { camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
-  if (codeReader) { try{codeReader.reset();}catch{} codeReader=null; }
-
-  try {
-    camStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal:'environment' }, width:{ideal:1280}, height:{ideal:720} },
-      audio: false
-    });
-    video.srcObject = camStream;
+  document.getElementById('camStatusText').textContent='';
+  document.getElementById('camManIn').value='';
+  const video=document.getElementById('cam-video');
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  if(codeReader){try{codeReader.reset();}catch{}codeReader=null;}
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280}},audio:false});
+    video.srcObject=camStream;
     await video.play();
-
-    if (typeof ZXing !== 'undefined') {
-      const hints = new Map();
-      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-        ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
-        ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
-        ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
-        ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.ITF,
-      ]);
-      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-      codeReader = new ZXing.BrowserMultiFormatReader(hints, 400);
-      codeReader.decodeFromVideoElement(video, (result, err) => {
-        if (result) { closeCam(); applyCode(result.getText()); }
-      });
-    } else if ('BarcodeDetector' in window) {
-      const det = new BarcodeDetector({formats:['ean_13','ean_8','code_128','code_39','upc_a','upc_e','qr_code']});
-      const loop = setInterval(async ()=>{
-        if (!camStream){clearInterval(loop);return;}
-        try {
-          const codes = await det.detect(video);
-          if (codes&&codes.length){clearInterval(loop);closeCam();applyCode(codes[0].rawValue);}
-        }catch{}
-      },350);
-    } else {
-      document.getElementById('camStatusText').textContent = 'Auto-Scan nicht verfügbar – bitte manuell eingeben.';
+    if(typeof ZXing!=='undefined'){
+      const hints=new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.CODE_39,ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E,ZXing.BarcodeFormat.QR_CODE,ZXing.BarcodeFormat.ITF]);
+      hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+      codeReader=new ZXing.BrowserMultiFormatReader(hints,400);
+      codeReader.decodeFromVideoElement(video,(result)=>{if(result){closeCam();applyCode(result.getText());}});
+    }else if('BarcodeDetector'in window){
+      const det=new BarcodeDetector({formats:['ean_13','ean_8','code_128','code_39','upc_a','upc_e','qr_code']});
+      const loop=setInterval(async()=>{if(!camStream){clearInterval(loop);return;}try{const codes=await det.detect(video);if(codes&&codes.length){clearInterval(loop);closeCam();applyCode(codes[0].rawValue);}}catch{}},350);
+    }else{
+      document.getElementById('camStatusText').textContent='Auto-Scan nicht verfügbar – bitte manuell eingeben.';
     }
-  } catch(err) {
-    let msg = err.name==='NotAllowedError'
-      ? '🔒 Kamerazugriff verweigert.\nEinstellungen → Safari → Kamera → Erlauben'
-      : '⚠️ '+err.message;
-    document.getElementById('camStatusText').textContent = msg;
+  }catch(err){
+    document.getElementById('camStatusText').textContent=err.name==='NotAllowedError'?'🔒 Kamerazugriff verweigert. Einstellungen → Safari → Kamera → Erlauben':'⚠️ '+err.message;
   }
 }
-
-function closeCam() {
+function closeCam(){
   document.getElementById('camModal').classList.remove('open');
-  if (codeReader) { try{codeReader.reset();}catch{} codeReader=null; }
-  if (camStream)  { camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
-  const v = document.getElementById('cam-video');
-  v.srcObject=null; v.pause();
+  if(codeReader){try{codeReader.reset();}catch{}codeReader=null;}
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  const v=document.getElementById('cam-video');v.srcObject=null;v.pause();
 }
-function camManSubmit() {
-  const v = document.getElementById('camManIn').value.trim();
-  if (v) { closeCam(); applyCode(v); }
-}
+function camManSubmit(){const v=document.getElementById('camManIn').value.trim();if(v){closeCam();applyCode(v);}}
 
-// ═══════════════════════════════════════════════════
-// BARCODE LOGIC
-// ═══════════════════════════════════════════════════
-function useManual() {
-  const v = document.getElementById('manIn').value.trim();
-  if (v) applyCode(v);
-  else showToast('Bitte Barcode eingeben.','err');
-}
+// ── BARCODE ──
+function useManual(){const v=document.getElementById('manIn').value.trim();if(v)applyCode(v);else showToast('Bitte Barcode eingeben.','err');}
 
-function applyCode(code) {
-  curCode = code;
-  const el = document.getElementById('bcShow');
-  el.textContent = '📦 Barcode: ' + code;
-  el.style.display = 'block';
-  document.getElementById('manIn').value = code;
-
-  if (curMode === 'in') {
-    document.getElementById('formKellerLabel').textContent = curKeller;
-    document.getElementById('formCard').style.display = 'block';
+function applyCode(code){
+  curCode=code;
+  const el=document.getElementById('bcShow');
+  el.textContent='📦 Barcode: '+code;el.style.display='block';
+  document.getElementById('manIn').value=code;
+  if(curMode==='in'){
+    document.getElementById('formKellerLabel').textContent=curKeller;
+    document.getElementById('formCard').style.display='block';
     setTimeout(()=>document.getElementById('formCard').scrollIntoView({behavior:'smooth',block:'nearest'}),80);
-  } else {
-    const found    = bottles.find(b=>b.code===code && b.keller===curKeller);
-    const anyFound = found ? null : bottles.find(b=>b.code===code);
-    if (found) {
-      showConfirm(found);
-    } else if (anyFound) {
-      if (confirm('Diese Flasche liegt in Keller '+anyFound.keller+'.\nTrotzdem entnehmen?')) showConfirm(anyFound);
-      else resetCode();
-    } else {
-      showToast('⚠️ Kein Wein mit diesem Barcode gefunden.','err');
-      resetCode();
-    }
+  }else{
+    const found=bottles.find(b=>b.code===code&&b.keller===curKeller);
+    const anyFound=found?null:bottles.find(b=>b.code===code);
+    if(found)showConfirm(found);
+    else if(anyFound){if(confirm('Diese Flasche liegt in Keller '+anyFound.keller+'.\nTrotzdem entnehmen?'))showConfirm(anyFound);else resetCode();}
+    else{showToast('⚠️ Kein Wein mit diesem Barcode gefunden.','err');resetCode();}
   }
 }
 
-function resetCode() {
+function resetCode(){
   curCode='';
   document.getElementById('bcShow').style.display='none';
   document.getElementById('manIn').value='';
   document.getElementById('formCard').style.display='none';
 }
 
-// ═══════════════════════════════════════════════════
-// RATING
-// ═══════════════════════════════════════════════════
-function rate(v) {
-  curRating = v;
-  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<v));
-}
+function focusScanInput(){setTimeout(()=>{const el=document.getElementById('manIn');if(el){el.value='';el.focus();}},350);}
 
-// ═══════════════════════════════════════════════════
-// SAVE BOTTLE → SUPABASE
-// ═══════════════════════════════════════════════════
-async function saveBottle() {
-  const wg = document.getElementById('fWG').value.trim();
-  const tp = document.getElementById('fTyp').value;
-  if (!wg) { showToast('Bitte Weingut eingeben!','err'); return; }
-  if (!tp) { showToast('Bitte Weintyp wählen!','err'); return; }
-  if (!curCode) { showToast('Bitte zuerst Barcode scannen!','err'); return; }
+// ── RATING ──
+function rate(v){curRating=v;document.querySelectorAll('#formCard .star').forEach((s,i)=>s.classList.toggle('on',i<v));}
+function rateEdit(v){editRating=v;document.querySelectorAll('#eStars .star').forEach((s,i)=>s.classList.toggle('on',i<v));}
 
+// ── ALK HELPER: accept comma or dot ──
+function parseAlk(val){return parseFloat((val||'').toString().replace(',','.'))||null;}
+function displayAlk(val){return val?(String(val).replace('.',',')+'%vol'):'';}
+
+// ── SAVE BOTTLE ──
+async function saveBottle(){
+  const wg=document.getElementById('fWG').value.trim();
+  const tp=document.getElementById('fTyp').value;
+  if(!wg){showToast('Bitte Weingut eingeben!','err');return;}
+  if(!tp){showToast('Bitte Weintyp wählen!','err');return;}
+  if(!curCode){showToast('Bitte zuerst Barcode scannen!','err');return;}
   setSyncStatus('syncing','Speichere …');
-  // Store for duplication BEFORE saving
-  lastSaved = {
-    wg: document.getElementById('fWG').value.trim(),
-    tp: document.getElementById('fTyp').value,
-    so: document.getElementById('fSo').value.trim(),
-    la: document.getElementById('fLa').value.trim(),
-    ja: document.getElementById('fJa').value,
-    gr: document.getElementById('fGr').value || '0.75',
-    pr: document.getElementById('fPr').value,
-    ra: curRating,
-    no: document.getElementById('fNo').value.trim()
-  };
-
-  const { error } = await sb.from('bottles').insert([{
-    code: curCode, keller: curKeller,
-    wg, tp,
-    so: document.getElementById('fSo').value.trim(),
-    la: document.getElementById('fLa').value.trim(),
-    ja: document.getElementById('fJa').value,
-    gr: document.getElementById('fGr').value || '0.75',
-    pr: parseFloat(document.getElementById('fPr').value)||0,
-    ra: curRating,
-    no: document.getElementById('fNo').value.trim(),
-    alk: parseFloat(document.getElementById('fAlk').value)||null,
-    dt: new Date().toLocaleDateString('de-AT')
+  const {error}=await sb.from('bottles').insert([{
+    code:curCode,keller:curKeller,wg,tp,
+    so:document.getElementById('fSo').value.trim(),
+    la:document.getElementById('fLa').value.trim(),
+    ja:document.getElementById('fJa').value,
+    gr:document.getElementById('fGr').value||'0.75',
+    pr:parseFloat(document.getElementById('fPr').value)||0,
+    alk:parseAlk(document.getElementById('fAlk').value),
+    ra:curRating,
+    no:document.getElementById('fNo').value.trim(),
+    dt:new Date().toLocaleDateString('de-AT')
   }]);
-
-  if (error) {
-    setSyncStatus('offline','Fehler');
-    showToast('⚠️ Fehler beim Speichern: '+error.message,'err');
-    return;
-  }
-
-  // Reset form
+  if(error){setSyncStatus('offline','Fehler');showToast('⚠️ Fehler: '+error.message,'err');return;}
   ['fWG','fSo','fLa','fJa','fPr','fAlk','fNo'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fTyp').value='';
-  document.getElementById('fGr').value='0.75';
-  curRating=0; document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));
-  resetCode();
-  showToast('✓ Eingelagert – Keller '+curKeller+'!','ok');
-  focusScanInput(); // Auto-focus back to scanner field
-  // Show duplicate button
-  if (lastSaved) document.getElementById('dupBtn').style.display = 'block';
+  document.getElementById('fTyp').value='';document.getElementById('fGr').value='0.75';
+  curRating=0;document.querySelectorAll('#formCard .star').forEach(s=>s.classList.remove('on'));
+  resetCode();showToast('✓ Eingelagert – Keller '+curKeller+'!','ok');focusScanInput();
 }
 
-// ═══════════════════════════════════════════════════
-// CONFIRM / REMOVE → SUPABASE
-// ═══════════════════════════════════════════════════
-function showConfirm(b) {
-  removeId = b.id;
-  document.getElementById('cName').textContent = b.wg+(b.so?' · '+b.so:'')+(b.la?' '+b.la:'');
-  document.getElementById('cMeta').textContent = [b.tp, b.ja, b.gr+'L', b.pr?'€'+b.pr:'', b.alk?b.alk+'%vol':'', '🏰 '+b.keller].filter(Boolean).join(' · ');
+// ── CONFIRM / REMOVE ──
+function showConfirm(b){
+  removeId=b.id;
+  document.getElementById('cName').textContent=b.wg+(b.so?' · '+b.so:'')+(b.la?' '+b.la:'');
+  document.getElementById('cMeta').textContent=[b.tp,b.ja,b.gr+'L',b.pr?'€'+b.pr:'',displayAlk(b.alk),'🏰 '+b.keller].filter(Boolean).join(' · ');
   document.getElementById('confirmBg').classList.add('open');
 }
-function closeConfirm() { document.getElementById('confirmBg').classList.remove('open'); removeId=null; resetCode(); }
-
-async function doRemove() {
-  const b = bottles.find(x=>x.id===removeId);
+function closeConfirm(){document.getElementById('confirmBg').classList.remove('open');removeId=null;resetCode();}
+async function doRemove(){
+  const b=bottles.find(x=>x.id===removeId);
   setSyncStatus('syncing','Entferne …');
-  const { error } = await sb.from('bottles').delete().eq('id', removeId);
-  if (error) {
-    setSyncStatus('offline','Fehler');
-    showToast('⚠️ Fehler: '+error.message,'err');
-    return;
-  }
-  closeConfirm();
-  showToast('✓ Entnommen aus Keller '+(b?b.keller:'')+'!','out');
-  focusScanInput();
+  const {error}=await sb.from('bottles').delete().eq('id',removeId);
+  if(error){setSyncStatus('offline','Fehler');showToast('⚠️ Fehler: '+error.message,'err');return;}
+  closeConfirm();showToast('✓ Entnommen aus Keller '+(b?b.keller:'')+'!','out');focusScanInput();
 }
 
-async function delBottle(id) {
-  const b = bottles.find(x=>x.id===id);
-  if (!b || !confirm('"'+b.wg+'" wirklich löschen?')) return;
+// ── EDIT ──
+function editBottle(id){
+  const b=bottles.find(x=>x.id===id);if(!b)return;
+  document.getElementById('editId').value=b.id;
+  document.getElementById('eWG').value=b.wg||'';
+  document.getElementById('eTyp').value=b.tp||'';
+  document.getElementById('eSo').value=b.so||'';
+  document.getElementById('eLa').value=b.la||'';
+  document.getElementById('eJa').value=b.ja||'';
+  document.getElementById('eGr').value=b.gr||'0.75';
+  document.getElementById('ePr').value=b.pr||'';
+  document.getElementById('eAlk').value=b.alk?String(b.alk).replace('.',','):'';
+  document.getElementById('eKeller').value=b.keller||'Zöbing';
+  document.getElementById('eNo').value=b.no||'';
+  editRating=b.ra||0;
+  document.querySelectorAll('#eStars .star').forEach((s,i)=>s.classList.toggle('on',i<editRating));
+  document.getElementById('editBg').classList.add('open');
+}
+function closeEdit(){document.getElementById('editBg').classList.remove('open');}
+async function saveEdit(){
+  const id=parseInt(document.getElementById('editId').value);
+  const wg=document.getElementById('eWG').value.trim();
+  const tp=document.getElementById('eTyp').value;
+  if(!wg){showToast('Bitte Weingut eingeben!','err');return;}
+  if(!tp){showToast('Bitte Weintyp wählen!','err');return;}
+  setSyncStatus('syncing','Speichere …');
+  const {error}=await sb.from('bottles').update({
+    wg,tp,
+    so:document.getElementById('eSo').value.trim(),
+    la:document.getElementById('eLa').value.trim(),
+    ja:document.getElementById('eJa').value,
+    gr:document.getElementById('eGr').value||'0.75',
+    pr:parseFloat(document.getElementById('ePr').value)||0,
+    alk:parseAlk(document.getElementById('eAlk').value),
+    keller:document.getElementById('eKeller').value,
+    ra:editRating,
+    no:document.getElementById('eNo').value.trim()
+  }).eq('id',id);
+  if(error){setSyncStatus('offline','Fehler');showToast('⚠️ Fehler: '+error.message,'err');return;}
+  closeEdit();showToast('✓ Änderungen gespeichert!','ok');
+}
+
+// ── DUPLICATE ──
+function dupBottle(id){
+  const b=bottles.find(x=>x.id===id);if(!b)return;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-scan').classList.add('active');
+  document.querySelector('.tab').classList.add('active');
+  setKeller(b.keller);setMode('in');
+  document.getElementById('fWG').value=b.wg||'';
+  document.getElementById('fTyp').value=b.tp||'';
+  document.getElementById('fSo').value=b.so||'';
+  document.getElementById('fLa').value=b.la||'';
+  document.getElementById('fJa').value=b.ja||'';
+  document.getElementById('fGr').value=b.gr||'0.75';
+  document.getElementById('fPr').value=b.pr||'';
+  document.getElementById('fAlk').value=b.alk?String(b.alk).replace('.',','):'';
+  document.getElementById('fNo').value=b.no||'';
+  curRating=b.ra||0;
+  document.querySelectorAll('#formCard .star').forEach((s,i)=>s.classList.toggle('on',i<curRating));
+  curCode='';document.getElementById('bcShow').style.display='none';document.getElementById('manIn').value='';
+  document.getElementById('formKellerLabel').textContent=b.keller;
+  document.getElementById('formCard').style.display='block';
+  focusScanInput();showToast('✓ Daten übernommen – bitte neuen Barcode scannen!','ok');
+  setTimeout(()=>document.getElementById('formCard').scrollIntoView({behavior:'smooth',block:'nearest'}),200);
+}
+
+// ── DELETE ──
+async function delBottle(id){
+  const b=bottles.find(x=>x.id===id);
+  if(!b||!confirm('"'+b.wg+'" wirklich löschen?'))return;
   await sb.from('bottles').delete().eq('id',id);
 }
 
-// ═══════════════════════════════════════════════════
-// RENDER LIST
-// ═══════════════════════════════════════════════════
-function renderList() {
-  const q  = (document.getElementById('sq').value||'').toLowerCase();
-  const fk = document.getElementById('fkFilter').value;
-  const ft = document.getElementById('ftFilter').value;
-  const fs = document.getElementById('fsFilter').value;
-  const el = document.getElementById('bGrid');
+// ── AUTOCOMPLETE ──
+function getUnique(field){return[...new Set(bottles.map(b=>(b[field]||'').trim()).filter(Boolean))].sort();}
+function showAC(inputId,field,val){
+  const list=document.getElementById('ac-'+inputId);
+  const q=(val||'').trim().toLowerCase();
+  const matches=q?getUnique(field).filter(s=>s.toLowerCase().includes(q)&&s.toLowerCase()!==q):getUnique(field);
+  if(!matches.length){list.style.display='none';return;}
+  list.innerHTML=matches.slice(0,8).map(s=>{
+    const idx=s.toLowerCase().indexOf(q);
+    let label=s;
+    if(q&&idx>=0)label=s.slice(0,idx)+'<strong>'+s.slice(idx,idx+q.length)+'</strong>'+s.slice(idx+q.length);
+    return`<div class="ac-item" onmousedown="pickAC('${inputId}','${s.replace(/'/g,"\\'")}')">${label}</div>`;
+  }).join('');
+  list.style.display='block';
+}
+function pickAC(inputId,val){document.getElementById(inputId).value=val;document.getElementById('ac-'+inputId).style.display='none';}
+function hideAC(inputId){setTimeout(()=>{const l=document.getElementById('ac-'+inputId);if(l)l.style.display='none';},150);}
 
-  // Populate Sorte dropdown dynamically from current bottles
-  const sortenSet = [...new Set(bottles.map(b=>b.so).filter(Boolean))].sort();
-  const fsEl = document.getElementById('fsFilter');
-  const curFs = fsEl.value;
-  fsEl.innerHTML = '<option value="">Alle Sorten</option>' +
-    sortenSet.map(s=>`<option value="${s}" ${s===curFs?'selected':''}>${s}</option>`).join('');
-
-  let fl   = bottles.filter(b=>
-    (!fk||b.keller===fk)&&(!ft||b.tp===ft)&&(!fs||b.so===fs)&&
-    (!q||[b.wg,b.so,b.la,b.tp,b.ja+''].some(v=>(v||'').toLowerCase().includes(q)))
-  ).sort((a,b)=>(a.keller+a.tp+a.wg).localeCompare(b.keller+b.tp+b.wg));
-
-  if (!fl.length) {
-    el.innerHTML='<div class="empty"><div class="ei">🍾</div><p>Keine Flaschen gefunden</p></div>';
-    return;
-  }
-  el.innerHTML = fl.map(b=>{
-    const meta  = [b.so,b.la,b.ja].filter(Boolean).join(' · ');
-    const info  = [b.tp,b.gr+'L',b.pr?'€'+b.pr:'',b.alk?b.alk+'%vol':''].filter(Boolean).join(' · ');
-    const stars = b.ra?'<div style="font-size:.7rem;color:#c9a84c">'+'★'.repeat(b.ra)+'<span style="color:#e0d4c4">'+'★'.repeat(5-b.ra)+'</span></div>':'';
-    return `<div class="bcard">
+// ── RENDER LIST ──
+function renderList(){
+  const q=(document.getElementById('sq').value||'').toLowerCase();
+  const fk=document.getElementById('fkFilter').value;
+  const ft=document.getElementById('ftFilter').value;
+  const fs=document.getElementById('fsFilter').value;
+  const el=document.getElementById('bGrid');
+  // Update sorte dropdown
+  const sortenSet=[...new Set(bottles.map(b=>b.so).filter(Boolean))].sort();
+  const fsEl=document.getElementById('fsFilter');
+  const curFs=fsEl.value;
+  fsEl.innerHTML='<option value="">Alle Sorten</option>'+sortenSet.map(s=>`<option value="${s}"${s===curFs?' selected':''}>${s}</option>`).join('');
+  let fl=bottles.filter(b=>(!fk||b.keller===fk)&&(!ft||b.tp===ft)&&(!fs||b.so===fs)&&(!q||[b.wg,b.so,b.la,b.tp,b.ja+''].some(v=>(v||'').toLowerCase().includes(q)))).sort((a,b)=>(a.keller+a.tp+a.wg).localeCompare(b.keller+b.tp+b.wg));
+  if(!fl.length){el.innerHTML='<div class="empty"><div class="ei">🍾</div><p>Keine Flaschen gefunden</p></div>';return;}
+  el.innerHTML=fl.map(b=>{
+    const meta=[b.so,b.la,b.ja].filter(Boolean).join(' · ');
+    const info=[b.tp,b.gr+'L',b.pr?'€'+b.pr:'',displayAlk(b.alk)].filter(Boolean).join(' · ');
+    const stars=b.ra?'<div style="font-size:.7rem;color:#c9a84c">'+'★'.repeat(b.ra)+'<span style="color:#e0d4c4">'+'★'.repeat(5-b.ra)+'</span></div>':'';
+    return`<div class="bcard">
       <div class="bdot" style="background:${BG[b.tp]||'#f3e5f5'}">${EM[b.tp]||'🍷'}</div>
       <div>
         <div class="bname">${b.wg}${b.ja?' <span style="font-weight:300;font-size:.88rem">'+b.ja+'</span>':''}</div>
@@ -892,7 +774,7 @@ function renderList() {
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">
         <div style="font-family:monospace;font-size:.6rem;color:var(--muted)">${b.code||''}</div>
         <div style="font-size:.58rem;color:var(--muted)">${b.dt||''}</div>
-        <button onclick="dupBottle(${b.id})" style="background:none;border:none;cursor:pointer;font-size:.9rem;color:#5c1a2e;padding:4px" title="Duplizieren">⎘</button>
+        <button onclick="dupBottle(${b.id})" style="background:none;border:none;cursor:pointer;font-size:.9rem;color:var(--burg);padding:4px" title="Duplizieren">⎘</button>
         <button onclick="editBottle(${b.id})" style="background:none;border:none;cursor:pointer;font-size:.9rem;color:#c9a84c;padding:4px" title="Bearbeiten">✏️</button>
         <button class="bdel" onclick="delBottle(${b.id})">🗑</button>
       </div>
@@ -900,304 +782,49 @@ function renderList() {
   }).join('');
 }
 
-// ═══════════════════════════════════════════════════
-// RENDER OVERVIEW
-// ═══════════════════════════════════════════════════
-function renderOv() {
-  const el = document.getElementById('ovContent');
-  if (!bottles.length) {
-    el.innerHTML='<div class="ovc"><div class="empty"><div class="ei">📊</div><p>Noch keine Flaschen eingelagert</p></div></div>';
-    return;
-  }
+// ── RENDER OVERVIEW ──
+function renderOv(){
+  const el=document.getElementById('ovContent');
+  if(!bottles.length){el.innerHTML='<div class="ovc"><div class="empty"><div class="ei">📊</div><p>Noch keine Flaschen eingelagert</p></div></div>';return;}
   const byK={Zöbing:0,Stein:0},byT={},byJ={},byV={},bySo={};
   bottles.forEach(b=>{
     byK[b.keller]=(byK[b.keller]||0)+1;
     byT[b.tp]=(byT[b.tp]||0)+1;
-    if(b.ja) { const j=String(b.ja).trim(); if(j) byJ[j]=(byJ[j]||0)+1; }
-    if(b.pr) byV[b.tp]=(byV[b.tp]||0)+parseFloat(b.pr);
-    if(b.so) bySo[b.so]=(bySo[b.so]||0)+1;
+    if(b.ja){const j=String(b.ja).trim();if(j)byJ[j]=(byJ[j]||0)+1;}
+    if(b.pr)byV[b.tp]=(byV[b.tp]||0)+parseFloat(b.pr);
+    if(b.so)bySo[b.so]=(bySo[b.so]||0)+1;
   });
   function bars(obj,cfn,unit){
     const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const mx=e[0]?.[1]||1;
-    return e.map(([k,v])=>`<div class="brow">
-      <div class="blbl">${EM[k]?EM[k]+' ':''}${k}</div>
-      <div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div>
-      <div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div>
-    </div>`).join('');
+    return e.map(([k,v])=>`<div class="brow"><div class="blbl">${EM[k]?EM[k]+' ':''}${k}</div><div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div><div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div></div>`).join('');
   }
-  // barsOrdered: respects the order of entries as passed in (no re-sorting)
   function barsOrdered(entries,cfn,unit){
     const mx=Math.max(...entries.map(e=>e[1]))||1;
-    return entries.map(([k,v])=>`<div class="brow">
-      <div class="blbl">${k}</div>
-      <div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div>
-      <div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div>
-    </div>`).join('');
+    return entries.map(([k,v])=>`<div class="brow"><div class="blbl">${k}</div><div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div><div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div></div>`).join('');
   }
   const mx2=Math.max(...Object.values(byK))||1;
-  const kellerBars=Object.entries(byK).map(([k,v])=>`<div class="brow">
-    <div class="blbl">🏰 ${k}</div>
-    <div class="btr"><div class="bfi" style="width:${Math.round(v/mx2*100)}%;background:${k==='Zöbing'?'#c62828':'#2e7d32'}"></div></div>
-    <div class="bcn">${v}</div>
-  </div>`).join('');
+  const kellerBars=Object.entries(byK).map(([k,v])=>`<div class="brow"><div class="blbl">🏰 ${k}</div><div class="btr"><div class="bfi" style="width:${Math.round(v/mx2*100)}%;background:${k==='Zöbing'?'#c62828':'#2e7d32'}"></div></div><div class="bcn">${v}</div></div>`).join('');
+  const jahrEntries=Object.entries(byJ).sort((a,b)=>parseInt(b[0])-parseInt(a[0]));
   el.innerHTML=`
     <div class="ovc"><div class="ovh">Flaschen nach Keller</div>${kellerBars}</div>
     <div class="ovc"><div class="ovh">Flaschen nach Weintyp</div>${bars(byT,k=>CL[k]||'#888','')}</div>
-    ${Object.keys(byJ).length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+barsOrdered(Object.entries(byJ).sort((a,b)=>Number(b[0])-Number(a[0])),()=>'#c9a84c','')+'</div>':''}
+    ${jahrEntries.length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+barsOrdered(jahrEntries,()=>'#c9a84c','')+'</div>':''}
     ${Object.keys(bySo).length?'<div class="ovc"><div class="ovh">Top Sorten</div>'+bars(Object.fromEntries(Object.entries(bySo).sort((a,b)=>b[1]-a[1]).slice(0,10)),()=>'var(--burg)','')+'</div>':''}
     ${Object.keys(byV).length?'<div class="ovc"><div class="ovh">Wert nach Weintyp</div>'+bars(byV,k=>CL[k]||'#888','€')+'</div>':''}`;
 }
 
-// ═══════════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════════
+// ── TOAST ──
 let toastTimer;
 function showToast(msg,type='ok'){
   clearTimeout(toastTimer);
   const el=document.getElementById('toast');
-  el.textContent=msg; el.className='toast '+type; el.style.display='block';
+  el.textContent=msg;el.className='toast '+type;el.style.display='block';
   toastTimer=setTimeout(()=>el.style.display='none',2800);
 }
 
-// ═══════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════
-// AUTOCOMPLETE
-// ═══════════════════════════════════════════════════
-function getUnique(field) {
-  return [...new Set(bottles.map(b => (b[field]||'').trim()).filter(Boolean))].sort();
-}
-
-function showAC(inputId, field, val) {
-  const list = document.getElementById('ac-'+inputId);
-  const q = (val||'').trim().toLowerCase();
-  const all = getUnique(field);
-  const matches = q ? all.filter(s => s.toLowerCase().includes(q) && s.toLowerCase() !== q) : all;
-  if (!matches.length) { list.style.display='none'; return; }
-  list.innerHTML = matches.slice(0,8).map(s => {
-    // Highlight matching part
-    const idx = s.toLowerCase().indexOf(q);
-    let label = s;
-    if (q && idx >= 0) {
-      label = s.slice(0,idx) + '<strong>' + s.slice(idx,idx+q.length) + '</strong>' + s.slice(idx+q.length);
-    }
-    return `<div class="ac-item" onmousedown="pickAC('${inputId}','${s.replace(/'/g,"\'")}')">${label}</div>`;
-  }).join('');
-  list.style.display = 'block';
-}
-
-function pickAC(inputId, val) {
-  document.getElementById(inputId).value = val;
-  document.getElementById('ac-'+inputId).style.display = 'none';
-}
-
-function hideAC(inputId) {
-  setTimeout(() => {
-    const list = document.getElementById('ac-'+inputId);
-    if (list) list.style.display = 'none';
-  }, 150);
-}
-
-// ═══════════════════════════════════════════════════
-// KEYBOARD MODAL
-// ═══════════════════════════════════════════════════
-let kbTarget = null;   // target input element
-let kbShifted = false;
-
-function openKb(inputEl, label) {
-  kbTarget = inputEl;
-  kbShifted = false;
-  document.getElementById('kbLabel').textContent = label || 'Eingabe';
-  document.getElementById('kbInput').value = inputEl.value || '';
-  document.getElementById('kbBg').classList.add('open');
-  // Try to focus the hidden input so scanner still works for barcode field
-  document.getElementById('kbInput').focus();
-}
-
-function closeKb() {
-  document.getElementById('kbBg').classList.remove('open');
-  kbTarget = null;
-}
-
-function confirmKb() {
-  if (kbTarget) {
-    kbTarget.value = document.getElementById('kbInput').value;
-    // Trigger oninput for autocomplete
-    kbTarget.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-  closeKb();
-}
-
-function kbType(char) {
-  const inp = document.getElementById('kbInput');
-  const c = kbShifted ? char.toUpperCase() : char;
-  // Handle special multi-char keys
-  if (char === '. , -') {
-    // cycle through
-    inp.value += '.';
-  } else if (char === 'ü ä') {
-    inp.value += 'ü';
-  } else {
-    inp.value += c;
-  }
-  if (kbShifted) { kbShifted = false; updateKbShift(); }
-}
-
-function kbBack() {
-  const inp = document.getElementById('kbInput');
-  inp.value = inp.value.slice(0, -1);
-}
-
-function kbShift() {
-  kbShifted = !kbShifted;
-  updateKbShift();
-}
-
-function updateKbShift() {
-  document.querySelectorAll('.kb-key:not(.special):not(.num):not(.space)').forEach(k => {
-    if (k.textContent.length === 1) {
-      k.textContent = kbShifted ? k.textContent.toUpperCase() : k.textContent.toLowerCase();
-    }
-  });
-}
-
-function duplicateMode() {
-  if (!lastSaved) return;
-  // Fill form with last saved data
-  document.getElementById('fWG').value  = lastSaved.wg;
-  document.getElementById('fTyp').value = lastSaved.tp;
-  document.getElementById('fSo').value  = lastSaved.so;
-  document.getElementById('fLa').value  = lastSaved.la;
-  document.getElementById('fJa').value  = lastSaved.ja;
-  document.getElementById('fGr').value  = lastSaved.gr;
-  document.getElementById('fPr').value  = lastSaved.pr;
-  document.getElementById('fNo').value  = lastSaved.no;
-  curRating = lastSaved.ra;
-  document.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('on', i < curRating));
-  // Clear barcode — needs a new one
-  curCode = '';
-  document.getElementById('bcShow').style.display = 'none';
-  document.getElementById('manIn').value = '';
-  // Show form
-  document.getElementById('formKellerLabel').textContent = curKeller;
-  document.getElementById('formCard').style.display = 'block';
-  // Focus barcode field
-  focusScanInput();
-  showToast('✓ Daten übernommen – bitte neuen Barcode scannen!', 'ok');
-}
-
-function dupBottle(id) {
-  const b = bottles.find(x => x.id === id);
-  if (!b) return;
-
-  // Switch to scan tab
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-scan').classList.add('active');
-  document.querySelector('.tab').classList.add('active');
-
-  // Set keller to same as source bottle
-  setKeller(b.keller);
-  setMode('in');
-
-  // Fill form with bottle data
-  document.getElementById('fWG').value  = b.wg || '';
-  document.getElementById('fTyp').value = b.tp || '';
-  document.getElementById('fSo').value  = b.so || '';
-  document.getElementById('fLa').value  = b.la || '';
-  document.getElementById('fJa').value  = b.ja || '';
-  document.getElementById('fGr').value  = b.gr || '0.75';
-  document.getElementById('fPr').value  = b.pr || '';
-  document.getElementById('fAlk').value  = b.alk || '';
-  document.getElementById('fNo').value  = b.no || '';
-  curRating = b.ra || 0;
-  document.querySelectorAll('#formCard .star').forEach((s,i) => s.classList.toggle('on', i < curRating));
-
-  // Clear barcode — new one needed
-  curCode = '';
-  document.getElementById('bcShow').style.display = 'none';
-  document.getElementById('manIn').value = '';
-
-  // Show form
-  document.getElementById('formKellerLabel').textContent = b.keller;
-  document.getElementById('formCard').style.display = 'block';
-
-  // Focus barcode input
-  focusScanInput();
-  showToast('✓ Daten übernommen – bitte neuen Barcode scannen!', 'ok');
-  setTimeout(() => document.getElementById('formCard').scrollIntoView({behavior:'smooth', block:'nearest'}), 200);
-}
-
-let editRating = 0;
-
-function editBottle(id) {
-  const b = bottles.find(x => x.id === id);
-  if (!b) return;
-  document.getElementById('editId').value   = b.id;
-  document.getElementById('eWG').value      = b.wg || '';
-  document.getElementById('eTyp').value     = b.tp || '';
-  document.getElementById('eSo').value      = b.so || '';
-  document.getElementById('eLa').value      = b.la || '';
-  document.getElementById('eJa').value      = b.ja || '';
-  document.getElementById('eGr').value      = b.gr || '0.75';
-  document.getElementById('ePr').value      = b.pr || '';
-  document.getElementById('eKeller').value  = b.keller || 'Zöbing';
-  document.getElementById('eAlk').value      = b.alk || '';
-  document.getElementById('eNo').value      = b.no || '';
-  editRating = b.ra || 0;
-  document.querySelectorAll('#eStars .star').forEach((s,i) => s.classList.toggle('on', i < editRating));
-  document.getElementById('editBg').classList.add('open');
-}
-
-function rateEdit(v) {
-  editRating = v;
-  document.querySelectorAll('#eStars .star').forEach((s,i) => s.classList.toggle('on', i < v));
-}
-
-function closeEdit() {
-  document.getElementById('editBg').classList.remove('open');
-}
-
-async function saveEdit() {
-  const id = parseInt(document.getElementById('editId').value);
-  const wg = document.getElementById('eWG').value.trim();
-  const tp = document.getElementById('eTyp').value;
-  if (!wg) { showToast('Bitte Weingut eingeben!','err'); return; }
-  if (!tp) { showToast('Bitte Weintyp wählen!','err'); return; }
-
-  setSyncStatus('syncing','Speichere …');
-  const { error } = await sb.from('bottles').update({
-    wg, tp,
-    so: document.getElementById('eSo').value.trim(),
-    la: document.getElementById('eLa').value.trim(),
-    ja: document.getElementById('eJa').value,
-    gr: document.getElementById('eGr').value || '0.75',
-    pr: parseFloat(document.getElementById('ePr').value) || 0,
-    keller: document.getElementById('eKeller').value,
-    ra: editRating,
-    no: document.getElementById('eNo').value.trim(),
-    alk: parseFloat(document.getElementById('eAlk').value)||null
-  }).eq('id', id);
-
-  if (error) {
-    setSyncStatus('offline','Fehler');
-    showToast('⚠️ Fehler: ' + error.message, 'err');
-    return;
-  }
-  closeEdit();
-  showToast('✓ Änderungen gespeichert!', 'ok');
-}
-
-function focusScanInput() {
-  setTimeout(() => {
-    const el = document.getElementById('manIn');
-    if (el) { el.value = ''; el.focus(); }
-  }, 350);
-}
-
-document.getElementById('formKellerLabel').textContent = curKeller;
+// ── INIT ──
+document.getElementById('formKellerLabel').textContent=curKeller;
 loadBottles();
 subscribeRealtime();
 focusScanInput();
