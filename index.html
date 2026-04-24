@@ -44,7 +44,7 @@ header p{font-size:.65rem;letter-spacing:.28em;text-transform:uppercase;color:rg
 
 /* TABS */
 .tabs{display:flex;background:white;border-radius:14px;padding:4px;margin-bottom:1.5rem;border:1px solid var(--cr2);box-shadow:var(--sh);}
-.tab{flex:1;padding:.65rem .2rem;border:none;background:none;border-radius:11px;font-family:'Josefin Sans',sans-serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:var(--muted);transition:all .2s;}
+.tab{flex:1;padding:.65rem .15rem;border:none;background:none;border-radius:11px;font-family:'Josefin Sans',sans-serif;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--muted);transition:all .2s;}
 .tab.active{background:var(--burg);color:var(--gold2);}
 
 .panel{display:none;}.panel.active{display:block;}
@@ -100,6 +100,24 @@ textarea{resize:vertical;min-height:70px;}
 .star{font-size:1.7rem;cursor:pointer;color:var(--cr2);transition:color .12s;line-height:1;user-select:none;-webkit-user-select:none;}
 .star.on{color:var(--gold);}
 
+/* VERLAUF */
+.vl-card { background:white; border-radius:14px; padding:.9rem 1.1rem; border:1px solid var(--cr2); box-shadow:0 2px 12px rgba(58,15,30,.07); display:grid; grid-template-columns:auto 1fr auto; gap:.9rem; align-items:center; margin-bottom:.65rem; animation:up .22s ease; }
+.vl-badge { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+.vl-ein { background:#e8f5e9; }
+.vl-get { background:#fde8ee; }
+.vl-del { background:#f5f5f5; }
+.vl-name { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; line-height:1.2; }
+.vl-meta { font-size:.68rem; color:var(--muted); margin-top:.15rem; line-height:1.5; }
+.vl-date { font-size:.65rem; color:var(--muted); white-space:nowrap; }
+
+/* CLICKABLE OV ROWS */
+.ov-clickrow { cursor:pointer; transition:background .15s; border-radius:8px; padding:2px 4px; margin:-2px -4px; }
+.ov-clickrow:hover { background:var(--cr); }
+.ov-clickrow:hover .blbl { color:var(--burg); }
+.ov-arrow { font-size:1rem; color:var(--cr2); margin-left:.25rem; transition:color .15s; }
+.ov-clickrow:hover .ov-arrow { color:var(--burg); }
+.brow { display:flex; align-items:center; gap:.65rem; margin-bottom:.55rem; }
+
 /* AUTOCOMPLETE */
 .ac-wrap{position:relative;}
 .ac-list{display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--burg);border-top:none;border-radius:0 0 9px 9px;z-index:200;max-height:180px;overflow-y:auto;box-shadow:0 8px 20px rgba(58,15,30,.15);}
@@ -143,7 +161,7 @@ textarea{resize:vertical;min-height:70px;}
 /* OVERVIEW */
 .ovc{background:white;border-radius:16px;padding:1.3rem;border:1px solid var(--cr2);box-shadow:var(--sh);margin-bottom:.75rem;}
 .ovh{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
-.brow{display:flex;align-items:center;gap:.65rem;margin-bottom:.55rem;}
+
 .blbl{font-size:.78rem;min-width:95px;}
 .btr{flex:1;height:10px;background:var(--cr);border-radius:5px;overflow:hidden;}
 .bfi{height:100%;border-radius:5px;}
@@ -216,6 +234,7 @@ textarea{resize:vertical;min-height:70px;}
     <button class="tab active" onclick="goTab('scan',this)">📷 Scannen</button>
     <button class="tab" onclick="goTab('bestand',this)">📋 Bestand</button>
     <button class="tab" onclick="goTab('ov',this)">📊 Übersicht</button>
+    <button class="tab" onclick="goTab('verlauf',this)">📜 Verlauf</button>
   </div>
 
   <!-- SCAN TAB -->
@@ -324,8 +343,39 @@ textarea{resize:vertical;min-height:70px;}
     <div id="bGrid"><div class="loading"><div class="spinner"></div>Lade Bestand …</div></div>
   </div>
 
+  <!-- VERLAUF TAB -->
+  <div id="tab-verlauf" class="panel">
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+      <select id="vlKeller" onchange="renderVerlauf()" style="flex:1;min-width:120px;padding:.6rem .85rem;border:1px solid var(--cr2);border-radius:9px;font-family:'Josefin Sans',sans-serif;font-size:.85rem;background:white;outline:none;">
+        <option value="">🏰 Alle Keller</option>
+        <option value="Zöbing">Keller Zöbing</option>
+        <option value="Stein">Keller Stein</option>
+      </select>
+      <select id="vlAktion" onchange="renderVerlauf()" style="flex:1;min-width:120px;padding:.6rem .85rem;border:1px solid var(--cr2);border-radius:9px;font-family:'Josefin Sans',sans-serif;font-size:.85rem;background:white;outline:none;">
+        <option value="">Alle Aktionen</option>
+        <option value="Eingelagert">✅ Eingelagert</option>
+        <option value="Getrunken">🍷 Getrunken</option>
+        <option value="Gelöscht">🗑 Gelöscht</option>
+      </select>
+      <select id="vlZeitraum" onchange="renderVerlauf()" style="flex:1;min-width:120px;padding:.6rem .85rem;border:1px solid var(--cr2);border-radius:9px;font-family:'Josefin Sans',sans-serif;font-size:.85rem;background:white;outline:none;">
+        <option value="">Alle Zeiten</option>
+        <option value="7">Letzte 7 Tage</option>
+        <option value="30">Letzter Monat</option>
+        <option value="365">Letztes Jahr</option>
+      </select>
+    </div>
+    <div id="vlGrid"><div class="loading"><div class="spinner"></div>Lade Verlauf …</div></div>
+  </div>
+
   <!-- ÜBERSICHT TAB -->
   <div id="tab-ov" class="panel">
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem">
+      <select id="ovKellerFilter" onchange="renderOv()" style="flex:1;padding:.6rem .85rem;border:1px solid var(--cr2);border-radius:9px;font-family:'Josefin Sans',sans-serif;font-size:.88rem;background:white;outline:none;">
+        <option value="">🏰 Alle Keller</option>
+        <option value="Zöbing">🏰 Keller Zöbing</option>
+        <option value="Stein">🏰 Keller Stein</option>
+      </select>
+    </div>
     <div id="ovContent"><div class="loading"><div class="spinner"></div>Lade Daten …</div></div>
   </div>
 </div>
@@ -516,6 +566,7 @@ function goTab(t,btn){
   btn.classList.add('active');
   if(t==='bestand')renderList();
   if(t==='ov')renderOv();
+  if(t==='verlauf')renderVerlauf();
   if(t!=='scan')closeCam();
 }
 
@@ -629,6 +680,19 @@ async function saveBottle(){
     dt:new Date().toLocaleDateString('de-AT')
   }]);
   if(error){setSyncStatus('offline','Fehler');showToast('⚠️ Fehler: '+error.message,'err');return;}
+  // Log to history
+  await sb.from('history').insert([{
+    code:curCode, keller:curKeller, wg, tp,
+    so:document.getElementById('fSo').value.trim(),
+    la:document.getElementById('fLa').value.trim(),
+    ja:document.getElementById('fJa').value,
+    gr:document.getElementById('fGr').value||'0.75',
+    pr:parseFloat(document.getElementById('fPr').value)||0,
+    alk:parseAlk(document.getElementById('fAlk').value),
+    ra:curRating,
+    aktion:'Eingelagert',
+    datum:new Date().toLocaleDateString('de-AT')
+  }]);
   ['fWG','fSo','fLa','fJa','fPr','fAlk','fNo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fTyp').value='';document.getElementById('fGr').value='0.75';
   curRating=0;document.querySelectorAll('#formCard .star').forEach(s=>s.classList.remove('on'));
@@ -648,6 +712,14 @@ async function doRemove(){
   setSyncStatus('syncing','Entferne …');
   const {error}=await sb.from('bottles').delete().eq('id',removeId);
   if(error){setSyncStatus('offline','Fehler');showToast('⚠️ Fehler: '+error.message,'err');return;}
+  // Log to history
+  if(b) await sb.from('history').insert([{
+    code:b.code, keller:b.keller, wg:b.wg, tp:b.tp,
+    so:b.so, la:b.la, ja:b.ja, gr:b.gr,
+    pr:b.pr, alk:b.alk, ra:b.ra,
+    aktion:'Getrunken',
+    datum:new Date().toLocaleDateString('de-AT')
+  }]);
   closeConfirm();showToast('✓ Entnommen aus Keller '+(b?b.keller:'')+'!','out');focusScanInput();
 }
 
@@ -724,6 +796,13 @@ async function delBottle(id){
   const b=bottles.find(x=>x.id===id);
   if(!b||!confirm('"'+b.wg+'" wirklich löschen?'))return;
   await sb.from('bottles').delete().eq('id',id);
+  await sb.from('history').insert([{
+    code:b.code, keller:b.keller, wg:b.wg, tp:b.tp,
+    so:b.so, la:b.la, ja:b.ja, gr:b.gr,
+    pr:b.pr, alk:b.alk, ra:b.ra,
+    aktion:'Gelöscht',
+    datum:new Date().toLocaleDateString('de-AT')
+  }]);
 }
 
 // ── AUTOCOMPLETE ──
@@ -783,35 +862,134 @@ function renderList(){
 }
 
 // ── RENDER OVERVIEW ──
+function ovFilter(field, value) {
+  // Switch to bestand tab
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-bestand').classList.add('active');
+  document.querySelectorAll('.tab')[1].classList.add('active');
+
+  // Set keller filter from overview selection
+  const ovKeller = document.getElementById('ovKellerFilter').value;
+  document.getElementById('fkFilter').value = ovKeller;
+
+  // Reset other filters
+  document.getElementById('ftFilter').value = '';
+  document.getElementById('fsFilter').value = '';
+  document.getElementById('sq').value = '';
+
+  // Apply the clicked filter
+  if (field === 'tp') document.getElementById('ftFilter').value = value;
+  else if (field === 'so') document.getElementById('fsFilter').value = value;
+  else if (field === 'ja') document.getElementById('sq').value = value;
+  else if (field === 'wg') document.getElementById('sq').value = value;
+
+  renderList();
+}
+
 function renderOv(){
   const el=document.getElementById('ovContent');
   if(!bottles.length){el.innerHTML='<div class="ovc"><div class="empty"><div class="ei">📊</div><p>Noch keine Flaschen eingelagert</p></div></div>';return;}
-  const byK={Zöbing:0,Stein:0},byT={},byJ={},byV={},bySo={};
-  bottles.forEach(b=>{
+  // Filter by keller if selected
+  const ovKeller = document.getElementById('ovKellerFilter').value;
+  const filteredBottles = ovKeller ? bottles.filter(b=>b.keller===ovKeller) : bottles;
+
+  const byK={Zöbing:0,Stein:0},byT={},byJ={},byV={},bySo={},byWG={};
+  filteredBottles.forEach(b=>{
     byK[b.keller]=(byK[b.keller]||0)+1;
     byT[b.tp]=(byT[b.tp]||0)+1;
     if(b.ja){const j=String(b.ja).trim();if(j)byJ[j]=(byJ[j]||0)+1;}
     if(b.pr)byV[b.tp]=(byV[b.tp]||0)+parseFloat(b.pr);
     if(b.so)bySo[b.so]=(bySo[b.so]||0)+1;
+    if(b.wg)byWG[b.wg]=(byWG[b.wg]||0)+1;
   });
-  function bars(obj,cfn,unit){
+  function bars(obj,cfn,unit,filterField){
     const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const mx=e[0]?.[1]||1;
-    return e.map(([k,v])=>`<div class="brow"><div class="blbl">${EM[k]?EM[k]+' ':''}${k}</div><div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div><div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div></div>`).join('');
+    return e.map(([k,v])=>`<div class="brow ov-clickrow" onclick="ovFilter('${filterField||''}','${k.replace(/'/g,"\'")}')">
+      <div class="blbl">${EM[k]?EM[k]+' ':''}${k}</div>
+      <div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div>
+      <div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div>
+      <div class="ov-arrow">›</div>
+    </div>`).join('');
   }
-  function barsOrdered(entries,cfn,unit){
+  function barsOrdered(entries,cfn,unit,filterField){
     const mx=Math.max(...entries.map(e=>e[1]))||1;
-    return entries.map(([k,v])=>`<div class="brow"><div class="blbl">${k}</div><div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div><div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div></div>`).join('');
+    return entries.map(([k,v])=>`<div class="brow ov-clickrow" onclick="ovFilter('${filterField||''}','${k.replace(/'/g,"\'")}')">
+      <div class="blbl">${k}</div>
+      <div class="btr"><div class="bfi" style="width:${Math.round(v/mx*100)}%;background:${cfn(k)}"></div></div>
+      <div class="bcn">${unit==='€'?'€'+Math.round(v):v}</div>
+      <div class="ov-arrow">›</div>
+    </div>`).join('');
   }
   const mx2=Math.max(...Object.values(byK))||1;
   const kellerBars=Object.entries(byK).map(([k,v])=>`<div class="brow"><div class="blbl">🏰 ${k}</div><div class="btr"><div class="bfi" style="width:${Math.round(v/mx2*100)}%;background:${k==='Zöbing'?'#c62828':'#2e7d32'}"></div></div><div class="bcn">${v}</div></div>`).join('');
   const jahrEntries=Object.entries(byJ).sort((a,b)=>parseInt(b[0])-parseInt(a[0]));
   el.innerHTML=`
     <div class="ovc"><div class="ovh">Flaschen nach Keller</div>${kellerBars}</div>
-    <div class="ovc"><div class="ovh">Flaschen nach Weintyp</div>${bars(byT,k=>CL[k]||'#888','')}</div>
-    ${jahrEntries.length?'<div class="ovc"><div class="ovh">Jahrgänge</div>'+barsOrdered(jahrEntries,()=>'#c9a84c','')+'</div>':''}
-    ${Object.keys(bySo).length?'<div class="ovc"><div class="ovh">Top Sorten</div>'+bars(Object.fromEntries(Object.entries(bySo).sort((a,b)=>b[1]-a[1]).slice(0,10)),()=>'var(--burg)','')+'</div>':''}
-    ${Object.keys(byV).length?'<div class="ovc"><div class="ovh">Wert nach Weintyp</div>'+bars(byV,k=>CL[k]||'#888','€')+'</div>':''}`;
+    <div class="ovc"><div class="ovh">Flaschen nach Weintyp</div>${bars(byT,k=>CL[k]||'#888','','tp')}</div>
+    ${jahrEntries.length?'<div class="ovc"><div class="ovh">Jahrgänge <span style="font-size:.55rem;color:var(--muted)">– antippen zum Filtern</span></div>'+barsOrdered(jahrEntries,()=>'#c9a84c','','ja')+'</div>':''}
+    ${Object.keys(bySo).length?'<div class="ovc"><div class="ovh">Top Sorten <span style="font-size:.55rem;color:var(--muted)">– antippen zum Filtern</span></div>'+bars(Object.fromEntries(Object.entries(bySo).sort((a,b)=>b[1]-a[1]).slice(0,10)),()=>'var(--burg)','','so')+'</div>':''}
+    ${Object.keys(byWG).length?'<div class="ovc"><div class="ovh">Weingüter <span style="font-size:.55rem;color:var(--muted)">– antippen zum Filtern</span></div>'+bars(Object.fromEntries(Object.entries(byWG).sort((a,b)=>b[1]-a[1])),()=>'var(--deep)','','wg')+'</div>':''}
+    ${Object.keys(byV).length?'<div class="ovc"><div class="ovh">Wert nach Weintyp</div>'+bars(byV,k=>CL[k]||'#888','€','tp')+'</div>':''}`;
+}
+
+// ── RENDER VERLAUF ──
+let historyData = [];
+
+async function renderVerlauf() {
+  const el = document.getElementById('vlGrid');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div>Lade Verlauf …</div>';
+
+  const {data, error} = await sb.from('history').select('*').order('created_at', {ascending:false});
+  if(error){el.innerHTML='<div class="empty"><div class="ei">⚠️</div><p>Fehler beim Laden</p></div>';return;}
+  historyData = data || [];
+
+  const fk = document.getElementById('vlKeller').value;
+  const fa = document.getElementById('vlAktion').value;
+  const fz = parseInt(document.getElementById('vlZeitraum').value)||0;
+
+  let fl = historyData.filter(h => {
+    if(fk && h.keller !== fk) return false;
+    if(fa && h.aktion !== fa) return false;
+    if(fz) {
+      const d = new Date(h.created_at);
+      const diff = (Date.now() - d.getTime()) / (1000*60*60*24);
+      if(diff > fz) return false;
+    }
+    return true;
+  });
+
+  if(!fl.length){
+    el.innerHTML='<div class="empty"><div class="ei">📜</div><p>Keine Einträge gefunden</p></div>';
+    return;
+  }
+
+  const icons = {Eingelagert:'✅', Getrunken:'🍷', Gelöscht:'🗑'};
+  const bgClass = {Eingelagert:'vl-ein', Getrunken:'vl-get', Gelöscht:'vl-del'};
+
+  el.innerHTML = fl.map(h => {
+    const meta = [h.so, h.la, h.ja].filter(Boolean).join(' · ');
+    const info = [h.tp, h.keller ? '🏰 '+h.keller : '', h.gr?h.gr+'L':'', h.pr?'€'+h.pr:'', displayAlk(h.alk)].filter(Boolean).join(' · ');
+    return `<div class="vl-card">
+      <div class="vl-badge ${bgClass[h.aktion]||'vl-del'}">${icons[h.aktion]||'•'}</div>
+      <div>
+        <div class="vl-name">${h.wg||'–'}${h.ja?' <span style="font-weight:300;font-size:.88rem">'+h.ja+'</span>':''}</div>
+        ${meta?'<div class="vl-meta">'+meta+'</div>':''}
+        <div class="vl-meta">${info}</div>
+        <div class="vl-meta" style="color:${h.aktion==='Eingelagert'?'#2e7d32':h.aktion==='Getrunken'?'#c62828':'#888'};font-weight:600">
+          ${icons[h.aktion]} ${h.aktion} · ${h.datum||''}
+        </div>
+      </div>
+      <button onclick="delHistory(${h.id})" style="background:none;border:none;cursor:pointer;font-size:.9rem;color:#ddd;padding:4px" title="Aus Verlauf löschen">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+async function delHistory(id) {
+  if(!confirm('Diesen Verlaufseintrag löschen?')) return;
+  await sb.from('history').delete().eq('id', id);
+  renderVerlauf();
 }
 
 // ── TOAST ──
